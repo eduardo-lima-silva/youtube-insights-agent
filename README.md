@@ -63,7 +63,7 @@ O repositório já inclui a **amostra do warehouse** (`data/warehouse_sample.duc
 pip install -r requirements.txt
 python scripts/build_warehouse.py            # warehouse completo (requer os parquets do projeto 1)
 python scripts/build_warehouse.py --sample   # amostra de 57 MB para o deploy
-python -m pytest -q                          # 288 testes offline
+python -m pytest -q                          # 297 testes offline
 streamlit run app/streamlit_app.py           # sem chave = modo demo
 ```
 
@@ -79,11 +79,29 @@ Para o modo ao vivo, defina `ANTHROPIC_API_KEY` no ambiente. Modelo e esforço s
 
 Para desenvolver e iterar, o Haiku 5.5 sai por cerca de US$ 0,002 por pergunta: `INSIGHTS_MODEL=claude-haiku-5-5`. A avaliação mostra quanto de qualidade se perde em relação ao Opus.
 
+### Modo gratuito (Groq)
+
+O mesmo agente roda no plano gratuito do [Groq](https://console.groq.com) com o modelo aberto `openai/gpt-oss-120b`, sem custo:
+
+```bash
+set GROQ_API_KEY=...            # Windows (no Linux/macOS: export GROQ_API_KEY=...)
+set INSIGHTS_PROVIDER=groq
+streamlit run app/streamlit_app.py   # ou escolha "Groq (grátis)" na barra lateral
+python -m evals.run_eval --provider groq --split dev --limit 5 --yes
+```
+
+`insights_agent/groq_agent.py` reaproveita as ferramentas, o SQL Guard, o rastro e a checagem de números; só muda o formato da API (OpenAI) e o tamanho do prompt.
+- **Prompt compacto:** cerca de 3,5 mil tokens, contra cerca de 6 mil no Claude, porque o plano gratuito permite **~8 mil tokens/min e ~200 mil/dia**.
+- **Espera automática** ao receber 429 (limite por minuto). Por isso uma pergunta pode levar alguns minutos.
+- **Capacidade diária:** cerca de 40 a 50 chamadas ao modelo, ou seja, poucas dezenas de perguntas por dia. Dá para demo e testes pontuais, não para rodar a avaliação inteira de uma vez.
+- Os limites do plano gratuito mudam com frequência. Confira em console.groq.com.
+
 ## Estrutura
 
 | Caminho | Papel |
 |---|---|
 | `insights_agent/agent.py` | loop do agente, limites, custo, tratamento de recusa/erros |
+| `insights_agent/groq_agent.py` | o mesmo agente no Groq (plano gratuito), com prompt compacto e espera em 429 |
 | `insights_agent/tools.py`, `prompts.py` | ferramentas (JSON Schema estrito) e system prompt |
 | `insights_agent/sql_guard.py`, `db.py` | validação AST e execução segura |
 | `insights_agent/catalog.py` | catálogo semântico das tabelas (com ressalvas) |

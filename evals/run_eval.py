@@ -382,7 +382,9 @@ def render_md(summary: dict, meta: dict) -> str:
 def run(args: argparse.Namespace) -> int:
     from insights_agent import config
 
-    model = args.model or config.MODEL
+    if args.provider:
+        config.PROVIDER = args.provider
+    model = args.model or (config.GROQ_MODEL if config.PROVIDER == "groq" else config.MODEL)
     cases = select_cases(load_cases(args.cases), args.split, args.category,
                          args.ids.split(",") if args.ids else None, args.limit)
     refs = load_references(args.references)
@@ -403,8 +405,13 @@ def run(args: argparse.Namespace) -> int:
         if not args.yes:
             print("Execução real chama a API e custa dinheiro. Repita com --yes para confirmar.", file=sys.stderr)
             return 2
-        os.environ["INSIGHTS_MODEL"] = model
-        config.MODEL = model
+        if config.PROVIDER == "groq":
+            config.GROQ_MODEL = model
+            print("Groq (plano gratuito): ~200 mil tokens/dia ≈ 40–50 chamadas ao modelo; "
+                  "rode poucos casos por dia (--limit).")
+        else:
+            os.environ["INSIGHTS_MODEL"] = model
+            config.MODEL = model
         from insights_agent.agent import run_agent  # import tardio: só no modo real
         agent_fn = run_agent
 
@@ -464,6 +471,8 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--split", choices=["dev", "test", "all"], default="dev")
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--repeat", type=int, default=1)
+    ap.add_argument("--provider", choices=["anthropic", "groq"], default=None,
+                    help="provedor do LLM (padrão: config.PROVIDER / INSIGHTS_PROVIDER)")
     ap.add_argument("--model", default=None, help="sobrescreve config.MODEL (ex.: claude-sonnet-5-5)")
     ap.add_argument("--category", default=None, help="filtra categorias (separadas por vírgula)")
     ap.add_argument("--ids", default=None, help="filtra ids de casos (separados por vírgula)")

@@ -42,3 +42,16 @@ PRICES = {
 }
 
 DEMO_TRACES_DIR = ROOT / "demo_traces"
+
+# ---- provedor do LLM ----
+# "anthropic" (padrão) ou "groq" (plano gratuito: ~30 req/min, 8 mil tokens/min, 200 mil tokens/dia)
+PROVIDER = os.getenv("INSIGHTS_PROVIDER", "anthropic").strip().lower()
+GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
+GROQ_REASONING_EFFORT = os.getenv("GROQ_REASONING_EFFORT", "medium")
+GROQ_MAX_WALL_S = 300.0            # espera os limites do plano gratuito, então é mais longo
+GROQ_TOOL_RESULT_MAX_CHARS = 2500  # resultados menores para caber em 8 mil tokens/min
+GROQ_MAX_TOKENS = 4096
+GROQ_MAX_RETRIES_429 = 4
+# no plano gratuito do Groq o custo é zero (os limites é que são o gargalo)
+PRICES.update({"openai/gpt-oss-120b": (0.0, 0.0, 0.0, 0.0), "openai/gpt-oss-20b": (0.0, 0.0, 0.0, 0.0),
+               "qwen/qwen3.8-27b": (0.0, 0.0, 0.0, 0.0)})

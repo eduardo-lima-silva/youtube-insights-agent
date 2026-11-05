@@ -58,25 +58,32 @@ def _safe_json(obj) -> str:
     return strip_paths(json.dumps(obj, ensure_ascii=False, indent=2, default=str))
 
 
-def _secret_key() -> str | None:
+PROVIDERS = {"anthropic": ("Anthropic (Claude)", "ANTHROPIC_API_KEY"),
+             "groq": ("Groq (grátis)", "GROQ_API_KEY")}
+
+
+def _secret_key(provider: str) -> str | None:
     try:
-        return st.secrets.get("ANTHROPIC_API_KEY")  # type: ignore[no-any-return]
+        return st.secrets.get(PROVIDERS[provider][1])  # type: ignore[no-any-return]
     except Exception:  # sem secrets.toml
         return None
 
 
-def _user_key() -> str:
-    return (st.session_state.get("user_api_key") or "").strip()
+def _user_key(provider: str) -> str:
+    return (st.session_state.get(f"user_api_key_{provider}") or "").strip()
 
 
-def has_credentials() -> bool:
-    return bool(_user_key() or _secret_key() or os.getenv("ANTHROPIC_API_KEY")
-                or os.getenv("ANTHROPIC_AUTH_TOKEN"))
+def has_credentials(provider: str) -> bool:
+    env = os.getenv(PROVIDERS[provider][1]) or (provider == "anthropic" and os.getenv("ANTHROPIC_AUTH_TOKEN"))
+    return bool(_user_key(provider) or _secret_key(provider) or env)
 
 
-def make_client():
+def make_client(provider: str):
+    key = _user_key(provider) or _secret_key(provider)
+    if provider == "groq":
+        import groq
+        return groq.Groq(api_key=key) if key else groq.Groq()
     import anthropic
-    key = _user_key() or _secret_key()
     return anthropic.Anthropic(api_key=key) if key else anthropic.Anthropic()
 
 
@@ -249,14 +256,22 @@ def _set_question(q: str) -> None:
 # --------------------------------------------------------------------------- #
 with st.sidebar:
     st.header("Configuração")
-    st.text_input("Sua chave da Anthropic (opcional, não é salva)", type="password", key="user_api_key",
+    provider = st.radio("Provedor do LLM", list(PROVIDERS), format_func=lambda p: PROVIDERS[p][0],
+                        index=list(PROVIDERS).index(config.PROVIDER) if config.PROVIDER in PROVIDERS else 0)
+    st.text_input(f"Sua chave {PROVIDERS[provider][1]} (opcional, não é salva)", type="password",
+                  key=f"user_api_key_{provider}",
                   help="Fica só na memória desta sessão do navegador; não é gravada nem exibida.")
-    creds = has_credentials()
+    creds = has_credentials(provider)
     modes = ["Ao vivo", "Demo"] if creds else ["Demo"]
     mode = st.radio("Modo", modes, index=0, horizontal=True)
     if not creds:
-        st.caption("Sem credencial da Anthropic: só o modo demo está disponível.")
-    st.markdown(f"**Modelo:** `{config.MODEL}` · **effort:** `{config.EFFORT}`")
+        st.caption(f"Sem {PROVIDERS[provider][1]}: só o modo demo está disponível.")
+    if provider == "groq":
+        st.markdown(f"**Modelo:** `{config.GROQ_MODEL}` (plano gratuito)")
+        st.caption("Plano gratuito: ~8 mil tokens/min e ~200 mil/dia. O agente espera sozinho quando "
+                   "bate o limite por minuto, então respostas podem levar alguns minutos.")
+    else:
+        st.markdown(f"**Modelo:** `{config.MODEL}` · **effort:** `{config.EFFORT}`")
     st.markdown(f"**Limites:** {config.MAX_TOOL_CALLS} ferramentas/pergunta · "
                 f"{MAX_LIVE_ANSWERS} respostas ao vivo/sessão")
     with st.expander("Dados e modelo em uso"):
@@ -294,13 +309,14 @@ if mode == "Ao vivo":
                 "Recarregue a página para começar outra sessão ou use o modo demo.")
     if ask and question.strip() and remaining > 0:
         try:
-            client = make_client()
+            client = make_client(provider)
         except Exception:
             client = None   # run_agent devolve a mensagem amigável de credencial
         with st.status("Analisando…", expanded=True) as status:
             def on_step(step: TraceStep) -> None:
                 status.write(describe_step(step))
-            result = run_agent(question, history=list(ss["history"]), client=client, on_step=on_step)
+            result = run_agent(question, history=list(ss["history"]), client=client, on_step=on_step,
+                               provider=provider)
             status.update(label=f"Análise {STATUS_PT.get(result.status, result.status)} "
                                 f"em {result.latency_s:.1f} s",
                           state="complete" if result.status == "ok" else "error", expanded=False)

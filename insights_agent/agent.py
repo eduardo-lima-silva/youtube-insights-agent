@@ -153,7 +153,12 @@ def _friendly_api_error(e: Exception) -> tuple[str, str]:
 # Loop principal
 # --------------------------------------------------------------------------- #
 def run_agent(question: str, history: list | None = None, *, client: Any = None,
-              on_step: Callable[[TraceStep], None] | None = None) -> AgentResult:
+              on_step: Callable[[TraceStep], None] | None = None,
+              provider: str | None = None) -> AgentResult:
+    """Responde uma pergunta. ``provider``: "anthropic" ou "groq" (padrão: config.PROVIDER)."""
+    if (provider or config.PROVIDER) == "groq":   # provedor gratuito (ver groq_agent.py)
+        from insights_agent import groq_agent
+        return groq_agent.run_agent(question, history, client=client, on_step=on_step)
     t0 = _clock()
     question = (question or "").strip()
     result = AgentResult(question=question, model=config.MODEL)

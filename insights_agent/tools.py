@@ -378,7 +378,7 @@ def _score_titles(inp: dict, state: dict):
 _IMPLS = {"run_sql": _run_sql, "make_chart": _make_chart, "score_titles": _score_titles}
 
 
-def dispatch(name: str, input: dict, state: dict) -> tuple[str, TraceStep, dict | None]:
+def dispatch(name: str, input: dict, state: dict, *, max_chars: int | None = None) -> tuple[str, TraceStep, dict | None]:
     """Executa a ferramenta ``name``. Nunca levanta exceção: falhas viram texto de erro."""
     t0 = time.perf_counter()
     inp = input if isinstance(input, dict) else {}
@@ -392,7 +392,7 @@ def dispatch(name: str, input: dict, state: dict) -> tuple[str, TraceStep, dict 
             text, ok, extra, spec = impl(inp, state)
         except Exception as e:  # noqa: BLE001 - rede de segurança
             text, ok, extra, spec = f"Erro inesperado na ferramenta: {type(e).__name__}: {e}", False, {}, None
-    text = truncate(text)
+    text = truncate(text, max_chars)
     extra["result_text"] = text   # texto integral (truncado) usado pela checagem de números
     step = TraceStep(kind="tool", name=name, input=copy.deepcopy(inp), output_preview=_preview(text),
                      ok=ok, elapsed_ms=round((time.perf_counter() - t0) * 1000, 1), extra=extra)
