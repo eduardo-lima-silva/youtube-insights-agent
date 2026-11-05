@@ -1,0 +1,6 @@
+# Artefatos de modelo/dados: nunca converter quebras de linha (o LightGBM não lê o modelo com CRLF)
+models/*.txt     -text
+models/*.joblib  binary
+models/*.json    -text
+*.duckdb         binary
+*.parquet        binary
