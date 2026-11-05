@@ -3,6 +3,28 @@ import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def _load_dotenv(path: Path) -> None:
+    """Carrega variáveis de um arquivo .env (KEY=valor) sem sobrescrever as já definidas no ambiente.
+
+    O .env fica fora do Git (.gitignore); é onde a chave do Groq é configurada localmente.
+    """
+    try:
+        lines = path.read_text(encoding="utf-8-sig").splitlines()
+    except OSError:
+        return
+    for line in lines:
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        key, value = key.strip(), value.strip().strip('"').strip("'")
+        if key and value and not os.environ.get(key):
+            os.environ[key] = value
+
+
+_load_dotenv(ROOT / ".env")
 DATA_DIR = ROOT / "data"
 P1 = ROOT.parent / "youtube-views-prediction"          # projeto 1 (dados + modelo)
 
@@ -44,8 +66,8 @@ PRICES = {
 DEMO_TRACES_DIR = ROOT / "demo_traces"
 
 # ---- provedor do LLM ----
-# "anthropic" (padrão) ou "groq" (plano gratuito: ~30 req/min, 8 mil tokens/min, 200 mil tokens/dia)
-PROVIDER = os.getenv("INSIGHTS_PROVIDER", "anthropic").strip().lower()
+# "groq" (padrão; plano gratuito: ~30 req/min, 8 mil tokens/min, 200 mil tokens/dia) ou "anthropic"
+PROVIDER = os.getenv("INSIGHTS_PROVIDER", "groq").strip().lower()
 GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
 GROQ_REASONING_EFFORT = os.getenv("GROQ_REASONING_EFFORT", "medium")
 GROQ_MAX_WALL_S = 300.0            # espera os limites do plano gratuito, então é mais longo

@@ -86,7 +86,17 @@ python -m pytest -q                          # 300 testes offline
 streamlit run app/streamlit_app.py           # sem chave = modo demo
 ```
 
-Para o modo ao vivo, defina `ANTHROPIC_API_KEY` no ambiente. Modelo e esforço são configuráveis com `INSIGHTS_MODEL` e `INSIGHTS_EFFORT`.
+**Chave de API:** o app usa o **Groq** (plano gratuito) por padrão. Copie `.env.example` para `.env` e coloque sua chave grátis de https://console.groq.com:
+
+```bash
+copy .env.example .env      # Windows (Linux/macOS: cp .env.example .env)
+```
+
+O `.env` fica fora do Git e é carregado automaticamente (`insights_agent/config.py`). Sem chave, o app abre em modo demo. No Streamlit Cloud, use `GROQ_API_KEY` em *Secrets*.
+
+**Interface:** as tabelas das respostas viram tabelas interativas (ordenar, buscar, baixar, tela cheia) com aba de gráfico e seletor de métrica; a aba **Dados da consulta** mostra o resultado bruto de cada SQL e a aba **Rastro** mostra cada passo do agente.
+
+O caminho com Claude (Anthropic) continua no código (`INSIGHTS_PROVIDER=anthropic` + `ANTHROPIC_API_KEY`), com modelo e esforço configuráveis em `INSIGHTS_MODEL` e `INSIGHTS_EFFORT`.
 
 ### Custo por modelo
 
