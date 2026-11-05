@@ -1,0 +1,730 @@
+{
+ "_meta": {
+  "warehouse": "warehouse.duckdb",
+  "built_at_utc": "2026-11-05T01:42:23+00:00",
+  "n_references": 36
+ },
+ "agg_01": {
+  "columns": [
+   "n_videos"
+  ],
+  "rows": [
+   [
+    54683
+   ]
+  ],
+  "row_count": 1,
+  "sql": "SELECT COUNT(DISTINCT video_id) AS n_videos FROM video_country WHERE country = 'Brazil'"
+ },
+ "agg_02": {
+  "columns": [
+   "median_views",
+   "n"
+  ],
+  "rows": [
+   [
+    75700.0,
+    149807
+   ]
+  ],
+  "row_count": 1,
+  "sql": "SELECT MEDIAN(views) AS median_views, COUNT(*) AS n FROM videos WHERE category = 'Music'"
+ },
+ "agg_03": {
+  "columns": [
+   "avg_days",
+   "n"
+  ],
+  "rows": [
+   [
+    2.116366758754573,
+    53572
+   ]
+  ],
+  "row_count": 1,
+  "sql": "SELECT AVG(days_trending) AS avg_days, COUNT(*) AS n FROM video_country WHERE country = 'Japan'"
+ },
+ "agg_04": {
+  "columns": [
+   "median_minutes",
+   "n"
+  ],
+  "rows": [
+   [
+    23.05,
+    584309
+   ]
+  ],
+  "row_count": 1,
+  "sql": "SELECT MEDIAN(duration_s) / 60.0 AS median_minutes, COUNT(*) AS n FROM videos WHERE category = 'Gaming'"
+ },
+ "agg_05": {
+  "columns": [
+   "pct_shorts",
+   "n"
+  ],
+  "rows": [
+   [
+    10.50174211655659,
+    956308
+   ]
+  ],
+  "row_count": 1,
+  "sql": "SELECT 100.0 * AVG(CASE WHEN is_short THEN 1 ELSE 0 END) AS pct_shorts, COUNT(*) AS n FROM videos"
+ },
+ "agg_06": {
+  "columns": [
+   "n_videos"
+  ],
+  "rows": [
+   [
+    876
+   ]
+  ],
+  "row_count": 1,
+  "sql": "SELECT COUNT(*) AS n_videos FROM videos WHERE n_trending_countries >= 50"
+ },
+ "agg_07": {
+  "columns": [
+   "title",
+   "channel_title",
+   "views"
+  ],
+  "rows": [
+   [
+    "ROSÉ & Bruno Mars - APT. (Official Music Video)",
+    "ROSÉ",
+    407522999
+   ]
+  ],
+  "row_count": 1,
+  "sql": "SELECT title, channel_title, views FROM videos ORDER BY views DESC LIMIT 1"
+ },
+ "agg_08": {
+  "columns": [
+   "n_countries"
+  ],
+  "rows": [
+   [
+    110
+   ]
+  ],
+  "row_count": 1,
+  "sql": "SELECT COUNT(DISTINCT country) AS n_countries FROM video_country"
+ },
+ "agg_09": {
+  "columns": [
+   "median_hours",
+   "n"
+  ],
+  "rows": [
+   [
+    13.948611111111111,
+    40320
+   ]
+  ],
+  "row_count": 1,
+  "sql": "SELECT MEDIAN(hours_to_trend) AS median_hours, COUNT(*) AS n FROM videos WHERE channel_country = 'Brazil' AND hours_to_trend IS NOT NULL"
+ },
+ "agg_10": {
+  "columns": [
+   "n_videos"
+  ],
+  "rows": [
+   [
+    852
+   ]
+  ],
+  "row_count": 1,
+  "sql": "SELECT COUNT(*) AS n_videos FROM video_country WHERE country = 'United States' AND first_date BETWEEN DATE '2025-03-01' AND DATE '2025-03-31'"
+ },
+ "agg_11": {
+  "columns": [
+   "video_days"
+  ],
+  "rows": [
+   [
+    72593
+   ]
+  ],
+  "row_count": 1,
+  "sql": "SELECT SUM(n_videos) AS video_days FROM daily_trending WHERE country = 'Mexico' AND trending_date >= DATE '2025-01-01' AND trending_date < DATE '2026-01-01'"
+ },
+ "agg_12": {
+  "columns": [
+   "like_rate",
+   "n"
+  ],
+  "rows": [
+   [
+    0.01699757423374519,
+    20378
+   ]
+  ],
+  "row_count": 1,
+  "sql": "SELECT MEDIAN(likes::DOUBLE / views) AS like_rate, COUNT(*) AS n FROM videos WHERE category = 'Sports' AND likes IS NOT NULL AND views > 0"
+ },
+ "agg_13": {
+  "columns": [
+   "n_days"
+  ],
+  "rows": [
+   [
+    567
+   ]
+  ],
+  "row_count": 1,
+  "sql": "SELECT COUNT(DISTINCT trending_date) AS n_days FROM daily_trending WHERE country = 'Brazil'"
+ },
+ "agg_14": {
+  "columns": [
+   "avg_comments",
+   "n"
+  ],
+  "rows": [
+   [
+    1486.6291040288636,
+    8315
+   ]
+  ],
+  "row_count": 1,
+  "sql": "SELECT AVG(comments) AS avg_comments, COUNT(*) AS n FROM videos WHERE category = 'Comedy' AND comments IS NOT NULL"
+ },
+ "agg_15": {
+  "columns": [
+   "n_videos"
+  ],
+  "rows": [
+   [
+    0
+   ]
+  ],
+  "row_count": 1,
+  "sql": "SELECT COUNT(DISTINCT video_id) AS n_videos FROM video_country WHERE country = 'Brazil' AND first_date BETWEEN DATE '2023-01-01' AND DATE '2023-12-31'"
+ },
+ "fg_01": {
+  "columns": [
+   "category",
+   "n_videos"
+  ],
+  "rows": [
+   [
+    "Gaming",
+    30221
+   ],
+   [
+    "Music",
+    10746
+   ],
+   [
+    "People & Blogs",
+    5020
+   ],
+   [
+    "Entertainment",
+    4884
+   ],
+   [
+    "Sports",
+    2097
+   ],
+   [
+    "Film & Animation",
+    762
+   ],
+   [
+    "Science & Technology",
+    297
+   ],
+   [
+    "News & Politics",
+    213
+   ],
+   [
+    "Comedy",
+    173
+   ],
+   [
+    "Education",
+    104
+   ]
+  ],
+  "row_count": 10,
+  "sql": "SELECT v.category, COUNT(DISTINCT vc.video_id) AS n_videos FROM video_country vc JOIN videos v USING (video_id) WHERE vc.country = 'Brazil' GROUP BY v.category ORDER BY n_videos DESC LIMIT 10"
+ },
+ "fg_02": {
+  "columns": [
+   "channel_title",
+   "n_videos"
+  ],
+  "rows": [
+   [
+    "영미터",
+    272
+   ],
+   [
+    "인피쉰",
+    260
+   ],
+   [
+    "전쓰트의 게임 채널 Junsst",
+    260
+   ],
+   [
+    "[ALTUBE] 김성현TV",
+    258
+   ],
+   [
+    "발스타홍구",
+    258
+   ],
+   [
+    "두치와뿌꾸",
+    256
+   ],
+   [
+    "행돌",
+    233
+   ],
+   [
+    "동희",
+    230
+   ],
+   [
+    "팔차선 [8LJAYWALKING]",
+    230
+   ],
+   [
+    "잡상싱",
+    222
+   ]
+  ],
+  "row_count": 10,
+  "sql": "SELECT v.channel_title, COUNT(DISTINCT vc.video_id) AS n_videos FROM video_country vc JOIN videos v USING (video_id) WHERE vc.country = 'South Korea' GROUP BY v.channel_title ORDER BY n_videos DESC, v.channel_title LIMIT 10"
+ },
+ "fg_03": {
+  "columns": [
+   "dia",
+   "median_views",
+   "n"
+  ],
+  "rows": [
+   [
+    "sábado",
+    69634.0,
+    130135
+   ],
+   [
+    "sexta",
+    68672.0,
+    144759
+   ],
+   [
+    "domingo",
+    66823.0,
+    129643
+   ],
+   [
+    "quinta",
+    60858.0,
+    148480
+   ],
+   [
+    "quarta",
+    59082.0,
+    140365
+   ],
+   [
+    "terça",
+    58814.0,
+    133271
+   ],
+   [
+    "segunda",
+    58498.0,
+    129655
+   ]
+  ],
+  "row_count": 7,
+  "sql": "SELECT CASE pub_dow WHEN 0 THEN 'segunda' WHEN 1 THEN 'terça' WHEN 2 THEN 'quarta' WHEN 3 THEN 'quinta' WHEN 4 THEN 'sexta' WHEN 5 THEN 'sábado' ELSE 'domingo' END AS dia, MEDIAN(views) AS median_views, COUNT(*) AS n FROM videos GROUP BY pub_dow ORDER BY median_views DESC"
+ },
+ "fg_04": {
+  "columns": [
+   "category",
+   "pct_shorts",
+   "n"
+  ],
+  "rows": [
+   [
+    "Film & Animation",
+    49.09981167608286,
+    13275
+   ],
+   [
+    "Comedy",
+    36.1437125748503,
+    8350
+   ],
+   [
+    "Howto & Style",
+    35.24397413286302,
+    3402
+   ],
+   [
+    "News & Politics",
+    27.211272969627725,
+    10503
+   ],
+   [
+    "Music",
+    26.381944768936034,
+    149807
+   ],
+   [
+    "Entertainment",
+    23.58214725853611,
+    82766
+   ],
+   [
+    "Travel & Events",
+    21.82741116751269,
+    1379
+   ],
+   [
+    "Education",
+    20.837328219878557,
+    3129
+   ],
+   [
+    "Science & Technology",
+    18.045325779036826,
+    3530
+   ],
+   [
+    "People & Blogs",
+    16.64315543947372,
+    71597
+   ],
+   [
+    "Sports",
+    15.964147286821706,
+    20640
+   ],
+   [
+    "Autos & Vehicles",
+    14.93863732543377,
+    2363
+   ],
+   [
+    "Gaming",
+    1.7586585180101624,
+    584309
+   ]
+  ],
+  "row_count": 13,
+  "sql": "SELECT category, 100.0 * AVG(CASE WHEN is_short THEN 1 ELSE 0 END) AS pct_shorts, COUNT(*) AS n FROM videos GROUP BY category HAVING COUNT(*) >= 1000 ORDER BY pct_shorts DESC"
+ },
+ "fg_05": {
+  "columns": [
+   "median_seconds",
+   "n"
+  ],
+  "rows": [
+   [
+    203.0,
+    15319
+   ]
+  ],
+  "row_count": 1,
+  "sql": "SELECT MEDIAN(duration_s) AS median_seconds, COUNT(*) AS n FROM videos WHERE category = 'Music' AND views > 1000000"
+ },
+ "fg_06": {
+  "columns": [
+   "pub_hour",
+   "n_videos"
+  ],
+  "rows": [
+   [
+    11,
+    3175
+   ],
+   [
+    12,
+    3146
+   ],
+   [
+    10,
+    2738
+   ],
+   [
+    13,
+    2726
+   ],
+   [
+    4,
+    2649
+   ]
+  ],
+  "row_count": 5,
+  "sql": "SELECT v.pub_hour, COUNT(*) AS n_videos FROM video_country vc JOIN videos v USING (video_id) WHERE vc.country = 'India' GROUP BY v.pub_hour ORDER BY n_videos DESC LIMIT 5"
+ },
+ "fg_07": {
+  "columns": [
+   "country",
+   "avg_days",
+   "n_videos"
+  ],
+  "rows": [
+   [
+    "Ghana",
+    11.216502649507948,
+    5284
+   ],
+   [
+    "Jamaica",
+    10.959697732997482,
+    5955
+   ],
+   [
+    "Bulgaria",
+    10.95583634175692,
+    8310
+   ],
+   [
+    "Kuwait",
+    10.374497723010982,
+    7466
+   ],
+   [
+    "Panama",
+    10.078730748805098,
+    7532
+   ],
+   [
+    "Lithuania",
+    10.035548032162506,
+    7089
+   ],
+   [
+    "Croatia",
+    9.706058951965066,
+    7328
+   ],
+   [
+    "Uruguay",
+    9.608744499578691,
+    10681
+   ],
+   [
+    "Oman",
+    9.593283051088658,
+    7027
+   ],
+   [
+    "Moldova",
+    9.58552895546342,
+    7477
+   ]
+  ],
+  "row_count": 10,
+  "sql": "SELECT country, AVG(days_trending) AS avg_days, COUNT(*) AS n_videos FROM video_country GROUP BY country HAVING COUNT(*) >= 5000 ORDER BY avg_days DESC LIMIT 10"
+ },
+ "fg_08": {
+  "columns": [
+   "median_hours",
+   "n"
+  ],
+  "rows": [
+   [
+    16.967222222222222,
+    35723
+   ]
+  ],
+  "row_count": 1,
+  "sql": "SELECT MEDIAN(hours_to_trend) AS median_hours, COUNT(*) AS n FROM videos WHERE channel_subs > 10000000 AND hours_to_trend IS NOT NULL"
+ },
+ "fg_09": {
+  "columns": [
+   "n_videos"
+  ],
+  "rows": [
+   [
+    6
+   ]
+  ],
+  "row_count": 1,
+  "sql": "SELECT COUNT(DISTINCT vc.video_id) AS n_videos FROM video_country vc JOIN videos v USING (video_id) WHERE vc.country = 'Portugal' AND v.category = 'Education' AND vc.first_date BETWEEN DATE '2025-01-01' AND DATE '2025-06-30'"
+ },
+ "fg_10": {
+  "columns": [
+   "title",
+   "channel_title",
+   "n_trending_countries"
+  ],
+  "rows": [],
+  "row_count": 0,
+  "sql": "SELECT title, channel_title, n_trending_countries FROM videos WHERE category = 'Pets & Animals' AND n_trending_countries > 80 ORDER BY n_trending_countries DESC"
+ },
+ "fg_11": {
+  "columns": [
+   "n_videos",
+   "median_views"
+  ],
+  "rows": [
+   [
+    0,
+    null
+   ]
+  ],
+  "row_count": 1,
+  "sql": "SELECT COUNT(*) AS n_videos, MEDIAN(v.views) AS median_views FROM video_country vc JOIN videos v USING (video_id) WHERE vc.country = 'Iceland' AND v.category = 'Gaming' AND vc.first_date <= DATE '2024-01-31' AND vc.last_date >= DATE '2024-01-01'"
+ },
+ "cmp_01": {
+  "columns": [
+   "median_short",
+   "median_long",
+   "n_short",
+   "n_long"
+  ],
+  "rows": [
+   [
+    140844.0,
+    57737.0,
+    5091,
+    49592
+   ]
+  ],
+  "row_count": 1,
+  "sql": "SELECT MEDIAN(v.views) FILTER (WHERE v.is_short) AS median_short, MEDIAN(v.views) FILTER (WHERE NOT v.is_short) AS median_long, COUNT(*) FILTER (WHERE v.is_short) AS n_short, COUNT(*) FILTER (WHERE NOT v.is_short) AS n_long FROM video_country vc JOIN videos v USING (video_id) WHERE vc.country = 'Brazil'"
+ },
+ "cmp_02": {
+  "columns": [
+   "n_brazil",
+   "n_mexico"
+  ],
+  "rows": [
+   [
+    32165,
+    27139
+   ]
+  ],
+  "row_count": 1,
+  "sql": "SELECT COUNT(DISTINCT video_id) FILTER (WHERE country = 'Brazil') AS n_brazil, COUNT(DISTINCT video_id) FILTER (WHERE country = 'Mexico') AS n_mexico FROM video_country WHERE first_date BETWEEN DATE '2025-01-01' AND DATE '2025-12-31'"
+ },
+ "cmp_03": {
+  "columns": [
+   "median_h1",
+   "median_h2",
+   "direction"
+  ],
+  "rows": [
+   [
+    33.0,
+    110.0,
+    "up"
+   ]
+  ],
+  "row_count": 1,
+  "sql": "SELECT MEDIAN(n_videos) FILTER (WHERE trending_date < DATE '2025-07-01') AS median_h1, MEDIAN(n_videos) FILTER (WHERE trending_date >= DATE '2025-07-01') AS median_h2, CASE WHEN MEDIAN(n_videos) FILTER (WHERE trending_date >= DATE '2025-07-01') > MEDIAN(n_videos) FILTER (WHERE trending_date < DATE '2025-07-01') THEN 'up' ELSE 'down' END AS direction FROM daily_trending WHERE country = 'Brazil' AND category = 'Gaming' AND trending_date BETWEEN DATE '2025-01-01' AND DATE '2025-12-31'"
+ },
+ "cmp_04": {
+  "columns": [
+   "median_music",
+   "median_entertainment"
+  ],
+  "rows": [
+   [
+    521118.5,
+    365932.0
+   ]
+  ],
+  "row_count": 1,
+  "sql": "SELECT MEDIAN(v.views) FILTER (WHERE v.category = 'Music') AS median_music, MEDIAN(v.views) FILTER (WHERE v.category = 'Entertainment') AS median_entertainment FROM video_country vc JOIN videos v USING (video_id) WHERE vc.country = 'United States'"
+ },
+ "cmp_05": {
+  "columns": [
+   "median_weekend",
+   "median_weekday",
+   "n_weekend"
+  ],
+  "rows": [
+   [
+    68248.0,
+    61175.0,
+    259778
+   ]
+  ],
+  "row_count": 1,
+  "sql": "SELECT MEDIAN(views) FILTER (WHERE pub_dow IN (5, 6)) AS median_weekend, MEDIAN(views) FILTER (WHERE pub_dow < 5) AS median_weekday, COUNT(*) FILTER (WHERE pub_dow IN (5, 6)) AS n_weekend FROM videos"
+ },
+ "cmp_06": {
+  "columns": [
+   "avg_japan",
+   "avg_korea"
+  ],
+  "rows": [
+   [
+    2.116366758754573,
+    2.8694056298096395
+   ]
+  ],
+  "row_count": 1,
+  "sql": "SELECT AVG(days_trending) FILTER (WHERE country = 'Japan') AS avg_japan, AVG(days_trending) FILTER (WHERE country = 'South Korea') AS avg_korea FROM video_country"
+ },
+ "cmp_07": {
+  "columns": [
+   "n_dec2024",
+   "n_dec2025",
+   "direction"
+  ],
+  "rows": [
+   [
+    593,
+    4968,
+    "up"
+   ]
+  ],
+  "row_count": 1,
+  "sql": "SELECT COUNT(*) FILTER (WHERE first_date BETWEEN DATE '2024-12-01' AND DATE '2024-12-31') AS n_dec2024, COUNT(*) FILTER (WHERE first_date BETWEEN DATE '2025-12-01' AND DATE '2025-12-31') AS n_dec2025, CASE WHEN COUNT(*) FILTER (WHERE first_date BETWEEN DATE '2025-12-01' AND DATE '2025-12-31') > COUNT(*) FILTER (WHERE first_date BETWEEN DATE '2024-12-01' AND DATE '2024-12-31') THEN 'up' ELSE 'down' END AS direction FROM video_country WHERE country = 'Brazil'"
+ },
+ "cmp_08": {
+  "columns": [
+   "avg_countries_short",
+   "avg_countries_long"
+  ],
+  "rows": [
+   [
+    2.3755544603252834,
+    2.171411564970949
+   ]
+  ],
+  "row_count": 1,
+  "sql": "SELECT AVG(n_trending_countries) FILTER (WHERE duration_s <= 600) AS avg_countries_short, AVG(n_trending_countries) FILTER (WHERE duration_s > 1200) AS avg_countries_long FROM videos"
+ },
+ "cmp_09": {
+  "columns": [
+   "n_videos"
+  ],
+  "rows": [
+   [
+    23807
+   ]
+  ],
+  "row_count": 1,
+  "sql": "SELECT COUNT(DISTINCT video_id) AS n_videos FROM video_country WHERE country = 'Chile' AND first_date BETWEEN DATE '2025-01-01' AND DATE '2025-12-31'"
+ },
+ "cmp_10": {
+  "columns": [
+   "median_views",
+   "n"
+  ],
+  "rows": [
+   [
+    197249.5,
+    22424
+   ]
+  ],
+  "row_count": 1,
+  "sql": "SELECT MEDIAN(v.views) AS median_views, COUNT(*) AS n FROM video_country vc JOIN videos v USING (video_id) WHERE vc.country = 'Mexico' AND v.category = 'Gaming'"
+ }
+}

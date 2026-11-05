@@ -1,0 +1,52 @@
+{
+  "warehouse": "warehouse.duckdb",
+  "built_at_utc": "2026-11-05T01:36:33Z",
+  "sample": false,
+  "sample_countries": null,
+  "size_bytes": 140259328,
+  "sources": {
+    "trending_slim.parquet": {
+      "path": "youtube-views-prediction/data/trending_slim.parquet",
+      "size_bytes": 423733939,
+      "mtime_utc": "2026-11-04T22:50:25Z"
+    },
+    "videos_features.parquet": {
+      "path": "youtube-views-prediction/data/videos_features.parquet",
+      "size_bytes": 384891295,
+      "mtime_utc": "2026-11-04T22:52:07Z"
+    }
+  },
+  "row_counts": {
+    "videos": 956308,
+    "video_country": 2147801,
+    "daily_trending": 572499
+  },
+  "checks": {
+    "videos_video_id_unique": true,
+    "videos_distinct_video_id": 956308,
+    "video_country_orphans": 0,
+    "video_country_pk_duplicates": 0
+  },
+  "date_ranges": {
+    "videos.published_at": [
+      "2024-09-05 23:12:00",
+      "2026-05-04 18:08:43"
+    ],
+    "videos.first_trending_date": [
+      "2024-10-12",
+      "2026-05-04"
+    ],
+    "video_country.first_date": [
+      "2024-10-12",
+      "2026-05-04"
+    ],
+    "video_country.last_date": [
+      "2024-10-12",
+      "2026-05-04"
+    ],
+    "daily_trending.trending_date": [
+      "2024-10-12",
+      "2026-05-04"
+    ]
+  }
+}

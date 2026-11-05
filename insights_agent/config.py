@@ -1,0 +1,44 @@
+"""Configuração central do YouTube Insights Agent."""
+import os
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+DATA_DIR = ROOT / "data"
+P1 = ROOT.parent / "youtube-views-prediction"          # projeto 1 (dados + modelo)
+
+# ---- fontes (projeto 1) ----
+SLIM_PARQUET = P1 / "data" / "trending_slim.parquet"
+VIDEOS_PARQUET = P1 / "data" / "videos_features.parquet"
+# modelos: cópia local em models/ (repositório autossuficiente); senão, os do projeto 1
+_MODELS = ROOT / "models" if (ROOT / "models" / "lgbm_views.txt").exists() else P1 / "models"
+LGBM_MODEL = Path(os.getenv("LGBM_MODEL", _MODELS / "lgbm_views.txt"))
+TEXT_MODEL = Path(os.getenv("TEXT_MODEL", _MODELS / "text_tfidf_ridge.joblib"))
+MODEL_META = Path(os.getenv("MODEL_META", _MODELS / "metadata.json"))
+
+# ---- warehouse (o que o LLM enxerga) ----
+WAREHOUSE_FULL = DATA_DIR / "warehouse.duckdb"
+WAREHOUSE_SAMPLE = DATA_DIR / "warehouse_sample.duckdb"
+WAREHOUSE_PATH = Path(os.getenv("WAREHOUSE_PATH",
+                                WAREHOUSE_FULL if WAREHOUSE_FULL.exists() else WAREHOUSE_SAMPLE))
+ALLOWED_TABLES = ("videos", "video_country", "daily_trending")
+
+# ---- limites de segurança ----
+MAX_ROWS = 200                 # linhas máximas devolvidas por consulta
+SQL_TIMEOUT_S = 15.0           # tempo máximo por consulta
+DUCKDB_MEMORY_LIMIT = "1GB"
+DUCKDB_THREADS = 4
+MAX_TOOL_CALLS = 8             # chamadas de ferramenta por pergunta
+TOOL_RESULT_MAX_CHARS = 6000   # truncamento do texto devolvido ao LLM
+
+# ---- LLM ----
+MODEL = os.getenv("INSIGHTS_MODEL", "claude-opus-5-5")
+EFFORT = os.getenv("INSIGHTS_EFFORT", "medium")
+MAX_TOKENS = 16000
+# US$ por milhão de tokens (input, output, cache_read, cache_write_5m)
+PRICES = {
+    "claude-opus-5-5": (4.00, 20.00, 0.20, 5.00),
+    "claude-sonnet-5-5": (2.00, 10.00, 0.20, 2.50),
+    "claude-haiku-5-5": (0.10, 0.50, 0.01, 0.125),
+}
+
+DEMO_TRACES_DIR = ROOT / "demo_traces"
