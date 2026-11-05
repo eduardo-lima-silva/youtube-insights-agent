@@ -147,3 +147,58 @@ def test_missing_key_is_friendly(offline, monkeypatch):
     monkeypatch.setattr(groq_agent, "_make_client", boom)
     r = groq_agent.run_agent("Teste")
     assert r.status == "error" and "GROQ_API_KEY" in r.answer
+
+
+class TooLarge(Exception):
+    """Imita o 413 do Groq (requisição grande demais para o plano gratuito)."""
+    status_code = 413
+
+
+def test_fit_context_shrinks_oldest_tool_results_first():
+    big = '<resultado_ferramenta fonte="run_sql" confiavel="nao">\n' + "x" * 9000 + "\n</resultado_ferramenta>"
+    msgs = [{"role": "system", "content": "s"}, {"role": "user", "content": "q"},
+            {"role": "tool", "tool_call_id": "a", "content": big},
+            {"role": "tool", "tool_call_id": "b", "content": big}]
+    n = groq_agent.fit_context(msgs, tools_chars=0, budget=3500)
+    assert n == 1                                   # o mais antigo basta para caber
+    assert groq_agent.TRIMMED_NOTE in msgs[2]["content"] and msgs[3]["content"] == big
+    assert msgs[2]["content"].endswith("</resultado_ferramenta>")
+    assert groq_agent.estimate_tokens(msgs) <= 3500
+
+
+def test_context_is_trimmed_before_request(offline, monkeypatch):
+    monkeypatch.setattr(config, "GROQ_CONTEXT_BUDGET", 2500)
+
+    def big_dispatch(name, inp, state, *, max_chars=None):
+        text = "x" * 6000
+        return (f'<resultado_ferramenta fonte="{name}" confiavel="nao">\n{text}\n</resultado_ferramenta>',
+                TraceStep(kind="tool", name=name, ok=True, extra={"result_text": text}), None)
+
+    monkeypatch.setattr(groq_agent.tools, "dispatch", big_dispatch)
+    client = FakeGroq([
+        _resp(calls=[_call("c1", "run_sql", {"sql": "SELECT 1", "purpose": "x"})], finish="tool_calls"),
+        _resp(calls=[_call("c2", "run_sql", {"sql": "SELECT 2", "purpose": "y"})], finish="tool_calls"),
+        _resp(content="Pronto."),
+    ])
+    r = groq_agent.run_agent("Palavras mais frequentes?", client=client)
+    assert r.status == "ok"
+    assert any(s.name == "context_budget" for s in r.steps)
+    last_msgs = client.calls[-1]["messages"]
+    assert groq_agent.TRIMMED_NOTE.strip()[:20] in json.dumps(last_msgs, ensure_ascii=False)
+
+
+def test_413_compacts_and_retries(offline, monkeypatch):
+    def big_dispatch(name, inp, state, *, max_chars=None):
+        text = "y" * 4000
+        return (f'<resultado_ferramenta fonte="{name}" confiavel="nao">\n{text}\n</resultado_ferramenta>',
+                TraceStep(kind="tool", name=name, ok=True, extra={"result_text": text}), None)
+
+    monkeypatch.setattr(groq_agent.tools, "dispatch", big_dispatch)
+    client = FakeGroq([
+        _resp(calls=[_call("c1", "run_sql", {"sql": "SELECT 1", "purpose": "x"})], finish="tool_calls"),
+        TooLarge("Request too large"),
+        _resp(content="Resposta final."),
+    ])
+    r = groq_agent.run_agent("Teste 413", client=client)
+    assert r.status == "ok" and r.answer == "Resposta final."
+    assert any(s.name == "context_budget" and s.extra.get("after_413") for s in r.steps)

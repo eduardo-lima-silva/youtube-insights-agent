@@ -71,7 +71,8 @@ PROVIDER = os.getenv("INSIGHTS_PROVIDER", "groq").strip().lower()
 GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
 GROQ_REASONING_EFFORT = os.getenv("GROQ_REASONING_EFFORT", "medium")
 GROQ_MAX_WALL_S = 300.0            # espera os limites do plano gratuito, então é mais longo
-GROQ_TOOL_RESULT_MAX_CHARS = 2500  # resultados menores para caber em 8 mil tokens/min
+GROQ_TOOL_RESULT_MAX_CHARS = 2000  # resultados menores para caber em 8 mil tokens/min
+GROQ_CONTEXT_BUDGET = 5800         # tokens estimados por requisição (limite do plano: ~8 mil)
 GROQ_MAX_TOKENS = 4096
 GROQ_MAX_RETRIES_429 = 4
 # no plano gratuito do Groq o custo é zero (os limites é que são o gargalo)
