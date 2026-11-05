@@ -131,7 +131,7 @@ def list_demo_traces() -> dict[str, AgentResult]:
 def describe_step(step: TraceStep) -> str:
     icon = "✅" if step.ok else "⚠️"
     if step.kind == "llm":
-        sr = step.extra.get("stop_reason")
+        sr = step.extra.get("stop_reason") or step.extra.get("finish_reason")
         return f"{icon} Modelo respondeu ({sr}, {step.elapsed_ms / 1000:.1f}s)"
     if step.kind == "tool":
         extra = step.extra
@@ -197,7 +197,7 @@ def render_trace(result: AgentResult) -> None:
                 st.text(strip_paths(extra.get("result_text") or step.output_preview))
             elif step.kind == "llm":
                 st.markdown(
-                    f"**stop_reason:** `{extra.get('stop_reason')}` · **servido por:** "
+                    f"**stop_reason:** `{extra.get('stop_reason') or extra.get('finish_reason')}` · **servido por:** "
                     f"`{extra.get('served_by')}`" + (" (fallback)" if extra.get("fallback") else "")
                     + f" · **tokens:** entrada {extra.get('input_tokens')}, saída "
                       f"{extra.get('output_tokens')}, cache leitura {extra.get('cache_read_input_tokens')}, "
