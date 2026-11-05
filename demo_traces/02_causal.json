@@ -1,0 +1,85 @@
+{
+  "question": "Qual duração causa mais views?",
+  "answer": "**Aviso de causalidade** – esses dados são observacionais e incluem apenas vídeos que já entraram em alta; não podemos afirmar que a duração *causa* mais visualizações, apenas que há uma associação entre elas.\n\n**Associação encontrada**  \n| Faixa de duração | Nº de vídeos | Mediana de visualizações | 90º percentil (p90) |\n|------------------|--------------|--------------------------|---------------------|\n| **Short (≤ 3 min)** | 100 429 | **224 730** | 5 861 436 |\n| Medium (3‑10 min) | 171 457 | 69 061 | 848 888 |\n| Very Long (> 30 min) | 296 129 | 59 128 | 496 753 |\n| Long (10‑30 min) | 388 293 | 52 942 | 396 866 |\n\n- O bucket **Short (≤ 3 min)** tem a maior mediana de visualizações (224 k) – quase 3 vezes a mediana dos vídeos “Medium” e mais de 4 vezes a dos “Long”.  \n- Mesmo o 90º percentil dos Shorts (≈ 5,9 M) supera em muito os demais grupos.\n\n**Ressalvas**  \n- O número de Shorts (≈ 100 k) é menor que o de vídeos mais longos, mas ainda suficientemente grande para evitar viés de amostra pequeno.  \n- A base inclui apenas vídeos que já “entraram em alta”; padrões podem ser diferentes para o universo completo de uploads.  \n- Outros fatores (categoria, público‑alvo, promoção, horário de publicação etc.) também influenciam as visualizações e não foram controlados aqui.\n\n**Próximas análises úteis**  \n- Ver a mesma associação dentro de categorias específicas (ex.: Gaming vs. Music).  \n- Avaliar se o efeito persiste quando controlamos por número de inscritos do canal ou por país de alta.  \n- Explorar a relação entre **hours_to_trend** e duração para entender se vídeos curtos tendem a entrar em alta mais rapidamente.",
+  "status": "ok",
+  "steps": [
+    {
+      "kind": "llm",
+      "name": "groq:openai/gpt-oss-120b",
+      "input": {},
+      "output_preview": "finish_reason=tool_calls · 1 ferramenta(s)",
+      "ok": true,
+      "elapsed_ms": 2308.8,
+      "extra": {
+        "finish_reason": "tool_calls",
+        "input_tokens": 2888,
+        "output_tokens": 508
+      }
+    },
+    {
+      "kind": "tool",
+      "name": "run_sql",
+      "input": {
+        "purpose": "Calcular mediana de visualizações por faixa de duração dos vídeos em alta.",
+        "sql": "WITH buckets AS (\n SELECT\n  CASE \n   WHEN duration_s <= 180 THEN 'Short (<=3min)'\n   WHEN duration_s <= 600 THEN 'Medium (3-10min)'\n   WHEN duration_s <= 1800 THEN 'Long (10-30min)'\n   ELSE 'Very Long (>30min)'\n  END AS dur_bucket,\n  views,\n  video_id\n FROM videos\n)\nSELECT dur_bucket,\n       COUNT(*) AS n_videos,\n       median(views) AS median_views,\n       quantile_cont(views, 0.9) AS p90_views\nFROM buckets\nGROUP BY dur_bucket\nORDER BY median_views DESC;"
+      },
+      "output_preview": "result_id: r1\nlinhas: 4\ncolunas: dur_bucket, n_videos, median_views, p90_views\ntempo: 156 ms\nSQL validado:\nWITH buckets AS (SELECT CASE WHEN duration_s <= 180 THEN 'Short (<=3min)' WHEN duration_s <= 600 THEN 'Medium (3-10min)' WHEN duration_s <= 1800 THEN 'Long (10-30min)' ELSE 'Very Long (>30min)' END AS dur_bucket, views, video_id FROM videos) SELECT dur_bucket, COUNT(*) AS n_videos, MEDIAN(vie…",
+      "ok": true,
+      "elapsed_ms": 958.5,
+      "extra": {
+        "purpose": "Calcular mediana de visualizações por faixa de duração dos vídeos em alta.",
+        "result_id": "r1",
+        "sql_validated": "WITH buckets AS (SELECT CASE WHEN duration_s <= 180 THEN 'Short (<=3min)' WHEN duration_s <= 600 THEN 'Medium (3-10min)' WHEN duration_s <= 1800 THEN 'Long (10-30min)' ELSE 'Very Long (>30min)' END AS dur_bucket, views, video_id FROM videos) SELECT dur_bucket, COUNT(*) AS n_videos, MEDIAN(views) AS median_views, QUANTILE_CONT(views, 0.9) AS p90_views FROM buckets GROUP BY dur_bucket ORDER BY median_views DESC LIMIT 200",
+        "row_count": 4,
+        "truncated": false,
+        "elapsed_ms": 155.5,
+        "columns": [
+          "dur_bucket",
+          "n_videos",
+          "median_views",
+          "p90_views"
+        ],
+        "result_text": "result_id: r1\nlinhas: 4\ncolunas: dur_bucket, n_videos, median_views, p90_views\ntempo: 156 ms\nSQL validado:\nWITH buckets AS (SELECT CASE WHEN duration_s <= 180 THEN 'Short (<=3min)' WHEN duration_s <= 600 THEN 'Medium (3-10min)' WHEN duration_s <= 1800 THEN 'Long (10-30min)' ELSE 'Very Long (>30min)' END AS dur_bucket, views, video_id FROM videos) SELECT dur_bucket, COUNT(*) AS n_videos, MEDIAN(views) AS median_views, QUANTILE_CONT(views, 0.9) AS p90_views FROM buckets GROUP BY dur_bucket ORDER BY median_views DESC LIMIT 200\n| dur_bucket | n_videos | median_views | p90_views |\n|---|---|---|---|\n| Short (<=3min) | 100429 | 224730 | 5861436 |\n| Medium (3-10min) | 171457 | 69061 | 848888 |\n| Very Long (>30min) | 296129 | 59128 | 496753 |\n| Long (10-30min) | 388293 | 52942 | 396866 |"
+      }
+    },
+    {
+      "kind": "llm",
+      "name": "groq:openai/gpt-oss-120b",
+      "input": {},
+      "output_preview": "finish_reason=stop · 0 ferramenta(s)",
+      "ok": true,
+      "elapsed_ms": 1564.0,
+      "extra": {
+        "finish_reason": "stop",
+        "input_tokens": 3391,
+        "output_tokens": 559
+      }
+    },
+    {
+      "kind": "guard",
+      "name": "grounding",
+      "input": {},
+      "output_preview": "22 números checados; 0 não verificados",
+      "ok": true,
+      "elapsed_ms": 0.0,
+      "extra": {
+        "unverified_numbers": [],
+        "checked": 22,
+        "verified": 22,
+        "ignored": 4
+      }
+    }
+  ],
+  "charts": [],
+  "usage": {
+    "input_tokens": 6279,
+    "output_tokens": 1067,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0,
+    "llm_calls": 2
+  },
+  "cost_usd": 0.0,
+  "latency_s": 16.421,
+  "model": "groq:openai/gpt-oss-120b",
+  "error": null
+}

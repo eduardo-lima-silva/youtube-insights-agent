@@ -1,0 +1,87 @@
+{
+  "question": "Compare a mediana de views de vídeos em alta de 8 a 12 minutos contra vídeos de 4 a 8 minutos no Brasil.",
+  "answer": "**Comparação da mediana de visualizações (Brasil)**  \n\n| Faixa de duração | nº de vídeos (em alta) | mediana de visualizações |\n|------------------|------------------------|---------------------------|\n| 4 – 8 min        | 4 706                  | 49 623                    |\n| 8 – 12 min       | 5 265                  | 56 491                    |\n\n**O que os números dizem**  \n- Vídeos entre 8 e 12 min têm **mediana de views cerca de 13 % maior** que os de 4 a 8 min (56 491 vs 49 623).  \n- Ambos os grupos são robustos (mais de 4 mil vídeos cada), então a diferença não é “ruído de pequena amostra”.\n\n**Limitações**  \n- A base inclui apenas vídeos que já entraram em alta; os padrões podem ser diferentes para a totalidade dos uploads no YouTube.  \n- Mediana reflete apenas o ponto central; a distribuição pode ser assimétrica (há vídeos com visualizações muito altas que puxam a média, mas não a mediana).\n\n**Próximos passos úteis**  \n- Verificar se o efeito persiste ao controlar por categoria (por exemplo, *Music* vs *Gaming*).  \n- Analisar a influência do horário/dia de publicação dentro de cada faixa de duração.  \n- Testar se a diferença se mantém nos primeiros 7 dias de vida do vídeo (usando `hours_to_trend` ou `age_days`).",
+  "status": "ok",
+  "steps": [
+    {
+      "kind": "llm",
+      "name": "groq:openai/gpt-oss-120b",
+      "input": {},
+      "output_preview": "finish_reason=tool_calls · 1 ferramenta(s)",
+      "ok": true,
+      "elapsed_ms": 1364.8,
+      "extra": {
+        "finish_reason": "tool_calls",
+        "input_tokens": 2876,
+        "output_tokens": 334
+      }
+    },
+    {
+      "kind": "tool",
+      "name": "run_sql",
+      "input": {
+        "purpose": "Calcular mediana de views e contagem de vídeos que entraram em alta no Brasil, comparando duração 8-12 min vs 4-8 min",
+        "sql": "WITH br_videos AS (\n    SELECT v.video_id, v.duration_s, v.views\n    FROM videos v\n    JOIN video_country vc USING (video_id)\n    WHERE vc.country = 'Brazil'\n)\nSELECT\n    CASE \n        WHEN duration_s >= 480 AND duration_s < 720 THEN '8-12 min'\n        WHEN duration_s >= 240 AND duration_s < 480 THEN '4-8 min'\n    END AS duration_range,\n    COUNT(*) AS n_videos,\n    median(views) AS median_views\nFROM br_videos\nWHERE (duration_s >= 480 AND duration_s < 720) OR (duration_s >= 240 AND duration_s < 480)\nGROUP BY duration_range\nORDER BY duration_range;"
+      },
+      "output_preview": "result_id: r1\nlinhas: 2\ncolunas: duration_range, n_videos, median_views\ntempo: 133 ms\nSQL validado:\nWITH br_videos AS (SELECT v.video_id, v.duration_s, v.views FROM videos AS v JOIN video_country AS vc USING (video_id) WHERE vc.country = 'Brazil') SELECT CASE WHEN duration_s >= 480 AND duration_s < 720 THEN '8-12 min' WHEN duration_s >= 240 AND duration_s < 480 THEN '4-8 min' END AS duration_range…",
+      "ok": true,
+      "elapsed_ms": 823.7,
+      "extra": {
+        "purpose": "Calcular mediana de views e contagem de vídeos que entraram em alta no Brasil, comparando duração 8-12 min vs 4-8 min",
+        "result_id": "r1",
+        "sql_validated": "WITH br_videos AS (SELECT v.video_id, v.duration_s, v.views FROM videos AS v JOIN video_country AS vc USING (video_id) WHERE vc.country = 'Brazil') SELECT CASE WHEN duration_s >= 480 AND duration_s < 720 THEN '8-12 min' WHEN duration_s >= 240 AND duration_s < 480 THEN '4-8 min' END AS duration_range, COUNT(*) AS n_videos, MEDIAN(views) AS median_views FROM br_videos WHERE (duration_s >= 480 AND duration_s < 720) OR (duration_s >= 240 AND duration_s < 480) GROUP BY duration_range ORDER BY duration_range LIMIT 200",
+        "row_count": 2,
+        "truncated": false,
+        "elapsed_ms": 132.6,
+        "columns": [
+          "duration_range",
+          "n_videos",
+          "median_views"
+        ],
+        "result_text": "result_id: r1\nlinhas: 2\ncolunas: duration_range, n_videos, median_views\ntempo: 133 ms\nSQL validado:\nWITH br_videos AS (SELECT v.video_id, v.duration_s, v.views FROM videos AS v JOIN video_country AS vc USING (video_id) WHERE vc.country = 'Brazil') SELECT CASE WHEN duration_s >= 480 AND duration_s < 720 THEN '8-12 min' WHEN duration_s >= 240 AND duration_s < 480 THEN '4-8 min' END AS duration_range, COUNT(*) AS n_videos, MEDIAN(views) AS median_views FROM br_videos WHERE (duration_s >= 480 AND duration_s < 720) OR (duration_s >= 240 AND duration_s < 480) GROUP BY duration_range ORDER BY duration_range LIMIT 200\n| duration_range | n_videos | median_views |\n|---|---|---|\n| 4-8 min | 4706 | 49623 |\n| 8-12 min | 5265 | 56491 |"
+      }
+    },
+    {
+      "kind": "llm",
+      "name": "groq:openai/gpt-oss-120b",
+      "input": {},
+      "output_preview": "finish_reason=stop · 0 ferramenta(s)",
+      "ok": true,
+      "elapsed_ms": 1319.9,
+      "extra": {
+        "finish_reason": "stop",
+        "input_tokens": 3377,
+        "output_tokens": 423
+      }
+    },
+    {
+      "kind": "guard",
+      "name": "grounding",
+      "input": {},
+      "output_preview": "9 números checados; 2 não verificados",
+      "ok": false,
+      "elapsed_ms": 0.0,
+      "extra": {
+        "unverified_numbers": [
+          "13 %",
+          "7"
+        ],
+        "checked": 9,
+        "verified": 7,
+        "ignored": 8
+      }
+    }
+  ],
+  "charts": [],
+  "usage": {
+    "input_tokens": 6253,
+    "output_tokens": 757,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0,
+    "llm_calls": 2
+  },
+  "cost_usd": 0.0,
+  "latency_s": 15.229,
+  "model": "groq:openai/gpt-oss-120b",
+  "error": null
+}

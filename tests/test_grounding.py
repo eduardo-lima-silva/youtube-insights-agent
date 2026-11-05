@@ -93,3 +93,40 @@ def test_dict_steps_from_saved_trace():
 def test_counts():
     r = check_numbers("63 mil e 87 mil", steps())
     assert r["checked"] == 2 and r["verified"] == 1 and r["unverified_numbers"] == ["87 mil"]
+
+
+def test_space_as_thousands_separator():
+    """Achado no teste ao vivo com o Groq: o modelo escreveu "54 683" (espaço como milhar)."""
+    from insights_agent.grounding import check_numbers
+    from insights_agent.trace import TraceStep
+    steps = [TraceStep(kind="tool", name="run_sql", extra={"result_text": "| n_videos_brasil |\n|---|\n| 54683 |"})]
+    for ans in ("Foram 54 683 vídeos.", "Foram 54\u00a0683 vídeos.", "Foram 54\u202f683 vídeos."):
+        g = check_numbers(ans, steps)
+        assert g["unverified_numbers"] == [], (ans, g)
+    # números separados por espaço que NÃO formam milhar continuam independentes
+    g = check_numbers("Entre 12 e 54683 vídeos, n = 30.", steps)
+    assert "12" in " ".join(map(str, g["unverified_numbers"])) or g["checked"] >= 2
+
+
+def test_rank_column_in_markdown_table_is_ignored():
+    """Achado no teste ao vivo: a coluna 'Rank' de uma tabela era marcada como número não verificado."""
+    from insights_agent.grounding import check_numbers
+    from insights_agent.trace import TraceStep
+    steps = [TraceStep(kind="tool", name="run_sql", extra={"result_text": "| category | n |\n| Gaming | 9861 |\n| Music | 4906 |"})]
+    ans = "| Rank | Categoria | Vídeos |\n|---|---|---|\n| 1 | Gaming | 9 861 |\n| 2 | Music | 4 906 |"
+    g = check_numbers(ans, steps)
+    assert g["unverified_numbers"] == [], g
+
+
+def test_derived_difference_and_time_units_are_verified():
+    """Achados da avaliação ao vivo (cmp_02 e tit_04): números derivados legítimos."""
+    from insights_agent.grounding import check_numbers
+    from insights_agent.trace import TraceStep
+    steps = [TraceStep(kind="tool", name="run_sql",
+                       extra={"result_text": "| country | n |\n| Brazil | 32170 |\n| Mexico | 27160 |"}),
+             TraceStep(kind="tool", name="score_titles", extra={"result_text": "Contexto usado: duration_s=600"})]
+    g = check_numbers("O Brasil teve ≈ 5 mil vídeos a mais; vídeo de 10 min.", steps)
+    assert g["unverified_numbers"] == [], g
+    # um número inventado continua sendo sinalizado
+    g = check_numbers("O Brasil teve 41.300 vídeos.", steps)
+    assert g["unverified_numbers"], g

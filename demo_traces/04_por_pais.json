@@ -1,0 +1,84 @@
+{
+  "question": "Quais categorias mais aparecem em alta no Brasil nos últimos 90 dias da base?",
+  "answer": "**Categorias que mais apareceram em alta no Brasil nos últimos 90 dias (contagem total de vídeos em alta por categoria):**\n\n| Rank | Categoria | Vídeos em alta (soma dos `n_videos`) | Dias em que apareceu |\n|------|-----------|--------------------------------------|----------------------|\n| 1 | Gaming | **9 861** | 91 |\n| 2 | Music | **4 906** | 91 |\n| 3 | People & Blogs | **1 698** | 91 |\n| 4 | Entertainment | **1 283** | 91 |\n| 5 | Film & Animation | **303** | 88 |\n| 6 | Sports | **42** | 34 |\n| 7 | News & Politics | **16** | 14 |\n| 8 | Comedy | **11** | 11 |\n| 9 | Education | **11** | 11 |\n| 10 | Science & Technology | **7** | 7 |\n| 11 | Pets & Animals | **4** | 4 |\n| 12 | Howto & Style | **3** | 3 |\n| 13 | Unknown | **3** | 3 |\n| 14 | Autos & Vehicles | **1** | 1 |\n\n**Ressalvas**\n\n- As categorias a partir de **Sports** já têm menos de 30 vídeos em alta no período analisado, portanto as estatísticas são menos robustas.\n- Os números referem‑se **apenas a vídeos que entraram em alta**; não representam a distribuição geral de todas as publicações no YouTube.\n\n**Próximas análises úteis**\n\n- Comparar a distribuição de **views medianas** por categoria (ex.: “Gaming” × “Music”) para entender o potencial de alcance.\n- Avaliar a **duração média** ou a taxa de “shorts” dentro das categorias mais populares e ver se há diferença significativa.",
+  "status": "ok",
+  "steps": [
+    {
+      "kind": "llm",
+      "name": "groq:openai/gpt-oss-120b",
+      "input": {},
+      "output_preview": "finish_reason=tool_calls · 1 ferramenta(s)",
+      "ok": true,
+      "elapsed_ms": 20263.8,
+      "extra": {
+        "finish_reason": "tool_calls",
+        "input_tokens": 2864,
+        "output_tokens": 309
+      }
+    },
+    {
+      "kind": "tool",
+      "name": "run_sql",
+      "input": {
+        "purpose": "Obter soma de vídeos em alta por categoria no Brasil nos últimos 90 dias da base.",
+        "sql": "WITH max_date AS (\n    SELECT max(trending_date) AS max_dt FROM daily_trending\n), recent AS (\n    SELECT dt.category, dt.n_videos\n    FROM daily_trending dt\n    JOIN max_date md ON dt.trending_date >= md.max_dt - INTERVAL '90 days'\n    WHERE dt.country = 'Brazil'\n)\nSELECT category,\n       sum(n_videos) AS total_videos,\n       count(*) AS days_appeared\nFROM recent\nGROUP BY category\nORDER BY total_videos DESC;"
+      },
+      "output_preview": "result_id: r1\nlinhas: 14\ncolunas: category, total_videos, days_appeared\ntempo: 44 ms\nSQL validado:\nWITH max_date AS (SELECT MAX(trending_date) AS max_dt FROM daily_trending), recent AS (SELECT dt.category, dt.n_videos FROM daily_trending AS dt JOIN max_date AS md ON dt.trending_date >= md.max_dt - INTERVAL '90' DAYS WHERE dt.country = 'Brazil') SELECT category, SUM(n_videos) AS total_videos, COUNT…",
+      "ok": true,
+      "elapsed_ms": 71.3,
+      "extra": {
+        "purpose": "Obter soma de vídeos em alta por categoria no Brasil nos últimos 90 dias da base.",
+        "result_id": "r1",
+        "sql_validated": "WITH max_date AS (SELECT MAX(trending_date) AS max_dt FROM daily_trending), recent AS (SELECT dt.category, dt.n_videos FROM daily_trending AS dt JOIN max_date AS md ON dt.trending_date >= md.max_dt - INTERVAL '90' DAYS WHERE dt.country = 'Brazil') SELECT category, SUM(n_videos) AS total_videos, COUNT(*) AS days_appeared FROM recent GROUP BY category ORDER BY total_videos DESC LIMIT 200",
+        "row_count": 14,
+        "truncated": false,
+        "elapsed_ms": 44.3,
+        "columns": [
+          "category",
+          "total_videos",
+          "days_appeared"
+        ],
+        "result_text": "result_id: r1\nlinhas: 14\ncolunas: category, total_videos, days_appeared\ntempo: 44 ms\nSQL validado:\nWITH max_date AS (SELECT MAX(trending_date) AS max_dt FROM daily_trending), recent AS (SELECT dt.category, dt.n_videos FROM daily_trending AS dt JOIN max_date AS md ON dt.trending_date >= md.max_dt - INTERVAL '90' DAYS WHERE dt.country = 'Brazil') SELECT category, SUM(n_videos) AS total_videos, COUNT(*) AS days_appeared FROM recent GROUP BY category ORDER BY total_videos DESC LIMIT 200\n| category | total_videos | days_appeared |\n|---|---|---|\n| Gaming | 9861 | 91 |\n| Music | 4906 | 91 |\n| People & Blogs | 1698 | 91 |\n| Entertainment | 1283 | 91 |\n| Film & Animation | 303 | 88 |\n| Sports | 42 | 34 |\n| News & Politics | 16 | 14 |\n| Comedy | 11 | 11 |\n| Education | 11 | 11 |\n| Science & Technology | 7 | 7 |\n| Pets & Animals | 4 | 4 |\n| Howto & Style | 3 | 3 |\n| Unknown | 3 | 3 |\n| Autos & Vehicles | 1 | 1 |"
+      }
+    },
+    {
+      "kind": "llm",
+      "name": "groq:openai/gpt-oss-120b",
+      "input": {},
+      "output_preview": "finish_reason=stop · 0 ferramenta(s)",
+      "ok": true,
+      "elapsed_ms": 29692.8,
+      "extra": {
+        "finish_reason": "stop",
+        "input_tokens": 3351,
+        "output_tokens": 508
+      }
+    },
+    {
+      "kind": "guard",
+      "name": "grounding",
+      "input": {},
+      "output_preview": "28 números checados; 0 não verificados",
+      "ok": true,
+      "elapsed_ms": 0.0,
+      "extra": {
+        "unverified_numbers": [],
+        "checked": 28,
+        "verified": 28,
+        "ignored": 16
+      }
+    }
+  ],
+  "charts": [],
+  "usage": {
+    "input_tokens": 6215,
+    "output_tokens": 817,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0,
+    "llm_calls": 2
+  },
+  "cost_usd": 0.0,
+  "latency_s": 50.78,
+  "model": "groq:openai/gpt-oss-120b",
+  "error": null
+}

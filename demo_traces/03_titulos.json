@@ -1,0 +1,159 @@
+{
+  "question": "Quero criar um vídeo sobre como estudar Python para entrevistas de dados. Sugira 3 títulos.",
+  "answer": "Esses três títulos têm desempenho previsto muito parecido (diferença < 1,5×), então a escolha pode ser feita pelo estilo que você achar mais adequado ao seu público.\n\n| # | Título sugerido | Views previstas (14 dias) | Faixa 2× (mín‑máx) | Risco de clickbait |\n|---|------------------------------|---------------------------|----------------------------|--------------------|\n| 1 | Como dominar Python para entrevistas de dados | **338 530** | 169 265 – 677 061 | baixo |\n| 2 | Python para entrevistas: dicas práticas e exercícios | **339 430** | 169 715 – 678 859 | baixo |\n| 3 | Entrevista de dados: resolvendo problemas em Python passo a passo | **374 823** | 187 412 – 749 647 | baixo |\n\n*Observação*: os valores são **associações** aprendidas a partir de vídeos que já entraram em alta; eles não provam que mudar o título cause mais visualizações. As diferenças entre os três são pequenas (≈ × 1,1), portanto a decisão pode ser guiada por preferência editorial ou por qual frase melhor reflete o conteúdo do seu vídeo. Todos os títulos apresentam risco baixo de serem percebidos como clickbait, já que são claros e evitam exageros.",
+  "status": "ok",
+  "steps": [
+    {
+      "kind": "llm",
+      "name": "groq:openai/gpt-oss-120b",
+      "input": {},
+      "output_preview": "finish_reason=tool_calls · 1 ferramenta(s)",
+      "ok": true,
+      "elapsed_ms": 17947.8,
+      "extra": {
+        "finish_reason": "tool_calls",
+        "input_tokens": 2902,
+        "output_tokens": 439
+      }
+    },
+    {
+      "kind": "tool",
+      "name": "score_titles",
+      "input": {
+        "context": {
+          "category": "Education",
+          "channel_age_days": 365,
+          "channel_subs": 50000,
+          "channel_videos": 200,
+          "channel_views": 5000000,
+          "desc_len": 1000,
+          "duration_s": 900,
+          "horizon_days": 14,
+          "market": "Brazil",
+          "pub_dow": 2,
+          "pub_hour_utc": 15,
+          "tags": "Python, entrevista, dados, estudo"
+        },
+        "titles": [
+          "Como dominar Python para entrevistas de dados",
+          "Python para entrevistas: dicas práticas e exercícios",
+          "Entrevista de dados: resolvendo problemas em Python passo a passo"
+        ]
+      },
+      "output_preview": "O modelo ordena as alternativas pelo padrão estatístico aprendido em vídeos que entraram em alta.\nContexto usado: category=Education, duration_s=900, channel_subs=50000, channel_views=5000000, channel_videos=200, channel_age_days=365, market=Brazil, pub_hour_utc=15, pub_dow=2, horizon_days=14, tags=Python, entrevista, dados, estudo, desc_len=1000\n\n| # | título | views previstas pelo modelo | faixa…",
+      "ok": true,
+      "elapsed_ms": 785.6,
+      "extra": {
+        "context": {
+          "category": "Education",
+          "duration_s": 900,
+          "channel_subs": 50000,
+          "channel_views": 5000000,
+          "channel_videos": 200,
+          "channel_age_days": 365,
+          "market": "Brazil",
+          "pub_hour_utc": 15,
+          "pub_dow": 2,
+          "horizon_days": 14,
+          "tags": "Python, entrevista, dados, estudo",
+          "desc_len": 1000
+        },
+        "n_titles": 3,
+        "warnings": [],
+        "max_min_ratio": 1.107,
+        "model_info": {
+          "lgbm": {
+            "file": "lgbm_views.txt",
+            "size_bytes": 29267796,
+            "mtime_utc": "2026-11-05T02:09:33+00:00"
+          },
+          "text_model": {
+            "file": "text_tfidf_ridge.joblib",
+            "size_bytes": 8380255,
+            "mtime_utc": "2026-11-05T02:09:33+00:00"
+          },
+          "best_iteration": 2500,
+          "n_features": 37,
+          "train_period": [
+            "2024-09-05",
+            "2026-02-08"
+          ],
+          "test_period": [
+            "2026-03-13",
+            "2026-05-04"
+          ],
+          "test_pct_within_2x": 83.9488
+        },
+        "scores": [
+          {
+            "title": "Como dominar Python para entrevistas de dados",
+            "predicted_views": 338530,
+            "interval_2x": [
+              169265,
+              677061
+            ],
+            "title_effect_log": 0.5495
+          },
+          {
+            "title": "Python para entrevistas: dicas práticas e exercícios",
+            "predicted_views": 339430,
+            "interval_2x": [
+              169715,
+              678859
+            ],
+            "title_effect_log": 0.5616
+          },
+          {
+            "title": "Entrevista de dados: resolvendo problemas em Python passo a passo",
+            "predicted_views": 374823,
+            "interval_2x": [
+              187412,
+              749647
+            ],
+            "title_effect_log": 0.6392
+          }
+        ],
+        "result_text": "O modelo ordena as alternativas pelo padrão estatístico aprendido em vídeos que entraram em alta.\nContexto usado: category=Education, duration_s=900, channel_subs=50000, channel_views=5000000, channel_videos=200, channel_age_days=365, market=Brazil, pub_hour_utc=15, pub_dow=2, horizon_days=14, tags=Python, entrevista, dados, estudo, desc_len=1000\n\n| # | título | views previstas pelo modelo | faixa 2x | texto do título (SHAP) | principais fatores (SHAP, log) |\n|---|---|---|---|---|---|\n| 1 | Como dominar Python para entrevistas de dados | 338.530 | 169.265–677.061 | +0.55 log ≈ ×1.73 | horizonte (dias desde a publicação) +1.22; padrão de texto do título/tags (NLP) +0.52; país do canal +0.25; média de views por vídeo do canal -0.20 |\n| 2 | Python para entrevistas: dicas práticas e exercícios | 339.430 | 169.715–678.859 | +0.56 log ≈ ×1.75 | horizonte (dias desde a publicação) +1.20; padrão de texto do título/tags (NLP) +0.52; país do canal +0.25; média de views por vídeo do canal -0.21 |\n| 3 | Entrevista de dados: resolvendo problemas em Python passo a passo | 374.823 | 187.412–749.647 | +0.64 log ≈ ×1.89 | horizonte (dias desde a publicação) +1.24; padrão de texto do título/tags (NLP) +0.57; país do canal +0.22; média de views por vídeo do canal -0.20 |\n\nRazão entre o maior e o menor score: ×1.11 (< ×1.5): empate técnico, dentro da margem do modelo; escolha por critério editorial.\nColuna 'texto do título': contribuição das features de texto do título (SHAP) — não é efeito causal. Unidades em log(views): +0,69 ≈ ×2, −0,69 ≈ ×0,5.\nTamanho do canal e horizonte (dias) costumam pesar muito mais que o título; trocar só o título move pouco a previsão.\nFaixa 2x: interval_2x é uma faixa heurística (~84% das previsões de teste ficaram dentro de 2×), não um intervalo de predição calibrado\nScores refletem associação estatística em vídeos que entraram em alta, não causalidade nem qualidade editorial."
+      }
+    },
+    {
+      "kind": "llm",
+      "name": "groq:openai/gpt-oss-120b",
+      "input": {},
+      "output_preview": "finish_reason=stop · 0 ferramenta(s)",
+      "ok": true,
+      "elapsed_ms": 18476.3,
+      "extra": {
+        "finish_reason": "stop",
+        "input_tokens": 3639,
+        "output_tokens": 397
+      }
+    },
+    {
+      "kind": "guard",
+      "name": "grounding",
+      "input": {},
+      "output_preview": "13 números checados; 0 não verificados",
+      "ok": true,
+      "elapsed_ms": 0.0,
+      "extra": {
+        "unverified_numbers": [],
+        "checked": 13,
+        "verified": 13,
+        "ignored": 3
+      }
+    }
+  ],
+  "charts": [],
+  "usage": {
+    "input_tokens": 6541,
+    "output_tokens": 836,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0,
+    "llm_calls": 2
+  },
+  "cost_usd": 0.0,
+  "latency_s": 37.968,
+  "model": "groq:openai/gpt-oss-120b",
+  "error": null
+}

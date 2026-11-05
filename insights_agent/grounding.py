@@ -41,6 +41,7 @@ SMALL_INT = 100
 REL_TOL = 0.02
 MAX_RATIO_VALUES = 150
 RATIO_MIN_VALUE = 10
+PROMPT_CONSTANTS = (30.0, 180.0, 200.0)
 
 
 @dataclass
@@ -85,11 +86,25 @@ def _is_ordinal(text: str, start: int, end: int) -> bool:
     prefix = text[line_start:start].strip().strip("*_#>").strip()
     if prefix in ("", "-") and nxt in (".", ")") and text[end + 1:end + 2] in (" ", "\t", ""):
         return True
+    # coluna de ranking: "| 2 | Music | ..." (primeira célula de uma linha de tabela)
+    if prefix == "|" and text[end:].lstrip(" ").startswith("|") and (end - start) <= 3:
+        return True
     return False
+
+
+# "54 683" / "54 683": espaço (comum, não separável ou estreito) como separador de milhar.
+# Troca por "." mantendo o comprimento do texto (as posições usadas em _is_ordinal não mudam).
+_SPACE_THOUSANDS_RE = re.compile(r"(?<![\d.,])\d{1,3}(?:[   ]\d{3})+(?![\d.,]\d)")
+
+
+def _normalize_spaces(text: str) -> str:
+    return _SPACE_THOUSANDS_RE.sub(
+        lambda m: m.group(0).replace(" ", ".").replace(" ", ".").replace(" ", "."), text)
 
 
 def _tokens(text: str) -> list[_Tok]:
     toks = []
+    text = _normalize_spaces(text)
     for m in _NUM_RE.finditer(text):
         num, pct, scale_word = m.group(1), m.group(2), m.group(3)
         scale = _SCALES.get(scale_word.lower(), 1.0) if scale_word else 1.0
@@ -136,11 +151,21 @@ def _tool_texts(steps: Iterable[Any]) -> list[str]:
 def _matches(tok: _Tok, values: list[float], ratio_pool: list[float]) -> bool:
     for v, hu in tok.cands:
         if tok.small_int:
-            if any(v == t or v == round(t) for t in values):
+            # exato, ou conversão exata de unidade de tempo (ex.: duration_s=600 -> "10 min")
+            if any(v == t or v == round(t) or v == t / 60 or v == t / 3600 for t in values):
                 return True
             continue
         if any(_close(v, t, hu) for t in values):
             return True
+        # derivados aceitos (achados do teste ao vivo): conversão de unidade de tempo e
+        # diferença absoluta entre dois números das ferramentas ("≈ 5 mil a mais")
+        if any(_close(v, d, hu) for t in values for d in (t / 60, t / 3600, t * 60)):
+            return True
+        if not tok.pct:
+            for i, a in enumerate(ratio_pool):
+                for b in ratio_pool[i + 1:]:
+                    if _close(v, abs(a - b), hu):
+                        return True
         if tok.pct:
             if any(_close(v, t * 100, hu) for t in values if abs(t) <= 1.5):
                 return True
@@ -151,6 +176,9 @@ def _matches(tok: _Tok, values: list[float], ratio_pool: list[float]) -> bool:
                         continue
                     r = (a / b - 1) * 100 if a > b else a / b * 100
                     if abs(v - r) <= hu + 1e-9:
+                        return True
+                    # queda relativa ("≈ 21 % menor" = 1 - 50.702/64.233)
+                    if a < b and abs(v - (1 - a / b) * 100) <= hu + 1e-9:
                         return True
     return False
 
@@ -163,6 +191,8 @@ def check_numbers(answer: str, steps: Iterable[Any], question: str = "") -> dict
     ratio_pool = [v for v in values if v >= RATIO_MIN_VALUE and not (2000 <= v <= 2030 and v == int(v))]
     ratio_pool = ratio_pool[-MAX_RATIO_VALUES:]
     q_vals = [v for tok in _tokens(question or "") for v, _ in tok.cands]
+    # constantes das regras do system prompt (n mínimo, limite dos Shorts em s, LIMIT do SQL)
+    q_vals += list(PROMPT_CONSTANTS)
 
     unverified: list[str] = []
     checked = verified = ignored = 0

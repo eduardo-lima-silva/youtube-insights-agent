@@ -334,7 +334,7 @@ if mode == "Ao vivo":
                     st.markdown(r.answer)
                     st.divider()
 else:
-    st.info("Modo demo: reproduzindo execuções gravadas, sem chamar a API da Anthropic.")
+    st.info("Modo demo: reproduzindo execuções gravadas, sem chamar nenhuma API de LLM. Cada gravação mostra o modelo que a produziu (aba Rastro).")
     traces = list_demo_traces()
     if not traces:
         st.markdown("Ainda não há execuções gravadas em `demo_traces/`. Grave algumas no modo ao vivo "
