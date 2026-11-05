@@ -323,3 +323,14 @@ def test_tool_use_with_inconsistent_stop_reason_is_processed(offline):
     assert r.status == "ok"
     assert [s.kind for s in r.steps][:2] == ["llm", "tool"]
     assert client.calls[1]["messages"][2]["content"][0]["type"] == "tool_result"
+
+
+def test_haiku_omits_fallbacks(offline, monkeypatch):
+    """Claude Haiku 5.5 não tem fallback no servidor: o parâmetro não deve ser enviado."""
+    monkeypatch.setattr(config, "MODEL", "claude-haiku-5-5")
+    client = FakeClient([resp([text("Resposta.")], "end_turn", model="claude-haiku-5-5")])
+    r = agent.run_agent("Teste", client=client)
+    assert r.status == "ok"
+    call = client.calls[0]
+    assert call["model"] == "claude-haiku-5-5"
+    assert "fallbacks" not in call and "betas" not in call

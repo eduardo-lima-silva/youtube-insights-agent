@@ -25,6 +25,12 @@ from insights_agent import config, grounding, prompts, tools
 from insights_agent.trace import AgentResult, TraceStep, Usage
 
 BETAS = ["server-side-fallback-2026-07-01"]
+# Modelos com fallback no servidor (`fallbacks="default"`). O Claude Haiku 5.5 não tem: nele o parâmetro é omitido.
+FALLBACK_MODELS = {"claude-opus-5-5", "claude-opus-5", "claude-sonnet-5-5", "claude-fable-5-1", "claude-fable-5"}
+
+
+def _fallback_kwargs(model: str) -> dict:
+    return {"betas": BETAS, "fallbacks": "default"} if model in FALLBACK_MODELS else {}
 
 # Limites (podem ir para config.py; aqui com getattr para não depender disso).
 MAX_QUESTION_CHARS = getattr(config, "MAX_QUESTION_CHARS", 2000)
@@ -218,8 +224,7 @@ def run_agent(question: str, history: list | None = None, *, client: Any = None,
                 messages=messages,
                 output_config={"effort": config.EFFORT},
                 cache_control={"type": "ephemeral"},
-                betas=BETAS,
-                fallbacks="default",
+                **_fallback_kwargs(config.MODEL),
                 timeout=max(5.0, MAX_WALL_S - elapsed),
             )
         except Exception as e:  # noqa: BLE001

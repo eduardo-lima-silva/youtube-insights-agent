@@ -69,6 +69,16 @@ streamlit run app/streamlit_app.py           # sem chave = modo demo
 
 Para o modo ao vivo, defina `ANTHROPIC_API_KEY` no ambiente. Modelo e esforço são configuráveis com `INSIGHTS_MODEL` e `INSIGHTS_EFFORT`.
 
+### Custo por modelo
+
+| Modelo (`INSIGHTS_MODEL`) | US$ por milhão de tokens (entrada / saída) | Avaliação `dev` (36 casos, estimativa) |
+|---|---|---|
+| `claude-opus-5-5` (padrão) | 4,00 / 20,00 | ~US$ 2,80 |
+| `claude-sonnet-5-5` | 2,00 / 10,00 | ~US$ 1,40 |
+| `claude-haiku-5-5` | 0,10 / 0,50 | ~US$ 0,07 |
+
+Para desenvolver e iterar, o Haiku 5.5 sai por cerca de US$ 0,002 por pergunta: `INSIGHTS_MODEL=claude-haiku-5-5`. A avaliação mostra quanto de qualidade se perde em relação ao Opus.
+
 ## Estrutura
 
 | Caminho | Papel |
