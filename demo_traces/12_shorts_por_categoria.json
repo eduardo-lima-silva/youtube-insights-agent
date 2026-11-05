@@ -1,0 +1,88 @@
+{
+  "question": "Em quais categorias os Shorts têm mediana de views maior que os vídeos longos no Brasil? Mostre os dois grupos com n, só categorias com pelo menos 30 vídeos em cada grupo.",
+  "answer": "**Atenção:** estes dados são apenas de vídeos que entraram em alta (trending) no YouTube; eles não representam todos os vídeos publicados nem permitem afirmar causalidade entre ser Short e obter mais visualizações.\n\n---\n\n### Shorts vs. vídeos longos (≥ 30 itens em cada grupo) – Brasil  \n\n| Categoria | n Shorts | Mediana Views Shorts | n Longos | Mediana Views Longos |\n|-----------|----------|----------------------|----------|-----------------------|\n| Entertainment | 392 | 279 334 | 4 492 | 64 280 |\n| Gaming | 739 | 573 363 | 29 482 | 55 460 |\n| Music | 3 009 | 71 507 | 7 737 | 40 234 |\n| People & Blogs | 309 | 111 700 | 4 711 | 48 385 |\n| Sports | 81 | 378 035 | 2 016 | 365 285 |\n\n**Interpretação da associação**  \nNessas cinco categorias, a mediana de visualizações dos Shorts é **maior** que a mediana dos vídeos longos. O tamanho dos grupos (todos ≥ 30) garante que a comparação não está baseada em amostras muito pequenas, mas ainda reflete apenas o comportamento dos vídeos que conseguiram entrar em alta.\n\n**Limitações**  \n- O conjunto inclui apenas vídeos que já estavam em alta; padrões podem ser diferentes para o universo completo de publicações.  \n- Medianas não capturam variações extremas (picos de visualizações) nem fatores externos como promoção paga ou algoritmos de recomendação.  \n\n**Próximos passos sugeridos**  \n- Verificar se a diferença persiste ao analisar a média de visualizações ou outros percentis (p. ex., 75ᵒ).  \n- Avaliar o impacto de variáveis como hora/dia de publicação ou tamanho da base de inscritos dentro de cada categoria.",
+  "status": "ok",
+  "steps": [
+    {
+      "kind": "llm",
+      "name": "groq:openai/gpt-oss-120b",
+      "input": {},
+      "output_preview": "finish_reason=tool_calls · 1 ferramenta(s)",
+      "ok": true,
+      "elapsed_ms": 7430.6,
+      "extra": {
+        "finish_reason": "tool_calls",
+        "input_tokens": 3082,
+        "output_tokens": 806
+      }
+    },
+    {
+      "kind": "tool",
+      "name": "run_sql",
+      "input": {
+        "purpose": "Compare median views of Shorts vs long videos per category in Brazil, filter categories with >=30 videos in each group and where Shorts median > long median.",
+        "sql": "WITH br AS (\n SELECT v.video_id, v.category, v.is_short, v.views\n FROM videos v\n JOIN video_country vc USING (video_id)\n WHERE vc.country = 'Brazil'\n)\nSELECT\n  category,\n  SUM(CASE WHEN is_short THEN 1 ELSE 0 END) AS n_shorts,\n  median(views) FILTER (WHERE is_short) AS median_shorts,\n  SUM(CASE WHEN NOT is_short THEN 1 ELSE 0 END) AS n_long,\n  median(views) FILTER (WHERE NOT is_short) AS median_long\nFROM br\nGROUP BY category\nHAVING SUM(CASE WHEN is_short THEN 1 ELSE 0 END) >= 30\n   AND SUM(CASE WHEN NOT is_short THEN 1 ELSE 0 END) >= 30\n   AND median(views) FILTER (WHERE is_short) > median(views) FILTER (WHERE NOT is_short)\nORDER BY category;"
+      },
+      "output_preview": "result_id: r1\nlinhas: 5\ncolunas: category, n_shorts, median_shorts, n_long, median_long\ntempo: 28 ms\nSQL validado:\nWITH br AS (SELECT v.video_id, v.category, v.is_short, v.views FROM videos AS v JOIN video_country AS vc USING (video_id) WHERE vc.country = 'Brazil') SELECT category, SUM(CASE WHEN is_short THEN 1 ELSE 0 END) AS n_shorts, MEDIAN(views) FILTER(WHERE is_short) AS median_shorts, SUM(CAS…",
+      "ok": true,
+      "elapsed_ms": 38.8,
+      "extra": {
+        "purpose": "Compare median views of Shorts vs long videos per category in Brazil, filter categories with >=30 videos in each group and where Shorts median > long median.",
+        "result_id": "r1",
+        "sql_validated": "WITH br AS (SELECT v.video_id, v.category, v.is_short, v.views FROM videos AS v JOIN video_country AS vc USING (video_id) WHERE vc.country = 'Brazil') SELECT category, SUM(CASE WHEN is_short THEN 1 ELSE 0 END) AS n_shorts, MEDIAN(views) FILTER(WHERE is_short) AS median_shorts, SUM(CASE WHEN NOT is_short THEN 1 ELSE 0 END) AS n_long, MEDIAN(views) FILTER(WHERE NOT is_short) AS median_long FROM br GROUP BY category HAVING SUM(CASE WHEN is_short THEN 1 ELSE 0 END) >= 30 AND SUM(CASE WHEN NOT is_short THEN 1 ELSE 0 END) >= 30 AND MEDIAN(views) FILTER(WHERE is_short) > MEDIAN(views) FILTER(WHERE NOT is_short) ORDER BY category LIMIT 200",
+        "row_count": 5,
+        "truncated": false,
+        "elapsed_ms": 28.4,
+        "columns": [
+          "category",
+          "n_shorts",
+          "median_shorts",
+          "n_long",
+          "median_long"
+        ],
+        "result_text": "result_id: r1\nlinhas: 5\ncolunas: category, n_shorts, median_shorts, n_long, median_long\ntempo: 28 ms\nSQL validado:\nWITH br AS (SELECT v.video_id, v.category, v.is_short, v.views FROM videos AS v JOIN video_country AS vc USING (video_id) WHERE vc.country = 'Brazil') SELECT category, SUM(CASE WHEN is_short THEN 1 ELSE 0 END) AS n_shorts, MEDIAN(views) FILTER(WHERE is_short) AS median_shorts, SUM(CASE WHEN NOT is_short THEN 1 ELSE 0 END) AS n_long, MEDIAN(views) FILTER(WHERE NOT is_short) AS median_long FROM br GROUP BY category HAVING SUM(CASE WHEN is_short THEN 1 ELSE 0 END) >= 30 AND SUM(CASE WHEN NOT is_short THEN 1 ELSE 0 END) >= 30 AND MEDIAN(views) FILTER(WHERE is_short) > MEDIAN(views) FILTER(WHERE NOT is_short) ORDER BY category LIMIT 200\n| category | n_shorts | median_shorts | n_long | median_long |\n|---|---|---|---|---|\n| Entertainment | 392 | 279334 | 4492 | 64280 |\n| Gaming | 739 | 573363 | 29482 | 55460 |\n| Music | 3009 | 71507 | 7737 | 40234 |\n| People & Blogs | 309 | 111700 | 4711 | 48385 |\n| Sports | 81 | 378035 | 2016 | 365285 |"
+      }
+    },
+    {
+      "kind": "llm",
+      "name": "groq:openai/gpt-oss-120b",
+      "input": {},
+      "output_preview": "finish_reason=stop · 0 ferramenta(s)",
+      "ok": true,
+      "elapsed_ms": 13131.1,
+      "extra": {
+        "finish_reason": "stop",
+        "input_tokens": 3730,
+        "output_tokens": 585
+      }
+    },
+    {
+      "kind": "guard",
+      "name": "grounding",
+      "input": {},
+      "output_preview": "20 números checados; 1 não verificados",
+      "ok": false,
+      "elapsed_ms": 0.0,
+      "extra": {
+        "unverified_numbers": [
+          "75"
+        ],
+        "checked": 20,
+        "verified": 19,
+        "ignored": 3
+      }
+    }
+  ],
+  "charts": [],
+  "usage": {
+    "input_tokens": 6812,
+    "output_tokens": 1391,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0,
+    "llm_calls": 2
+  },
+  "cost_usd": 0.0,
+  "latency_s": 20.822,
+  "model": "groq:openai/gpt-oss-120b",
+  "error": null
+}

@@ -1,0 +1,85 @@
+{
+  "question": "Quais categorias têm vídeos que viajam para mais países? Compare a mediana e a média do número de países em que cada vídeo ficou em alta.",
+  "answer": "**Primeira observação** – os dados são apenas dos vídeos que já entraram em alta; por isso não podemos afirmar causalidade (ex.: “publicar em X faz o vídeo aparecer em mais países”). Podemos apenas descrever a **associação** entre a categoria e quantos países, em média, um vídeo ficou em alta.\n\n### Associação entre categoria e “número de países” (n_trending_countries)\n\n| Categoria | Nº de vídeos (n) | Mediana de países | Média de países |\n|---|---|---|---|\n| Howto & Style | 3 402 | 1 | **3,09** |\n| Film & Animation | 13 275 | 1 | **2,90** |\n| Sports | 20 640 | 1 | **2,83** |\n| Comedy | 8 350 | 1 | **2,57** |\n| Pets & Animals | 795 | 1 | **2,46** |\n| Entertainment | 82 766 | 1 | **2,46** |\n| Science & Technology | 3 530 | 1 | **2,32** |\n| People & Blogs | 71 597 | 1 | **2,30** |\n| Gaming | 584 309 | 1 | **2,23** |\n| Travel & Events | 1 379 | 1 | **2,14** |\n| Education | 3 129 | 1 | **2,09** |\n| Autos & Vehicles | 2 363 | 1 | **2,07** |\n| Music | 149 807 | 1 | **2,02** |\n| News & Politics | 10 503 | 1 | **1,67** |\n| Unknown | 463 | 1 | **1,39** |\n\n#### Interpretação\n* **Mediana**: em todas as categorias, a mediana é 1 país – metade dos vídeos ficou em alta apenas no país onde foi detectado primeiro.\n* **Média**: varia de 1,39 (Unknown) até 3,09 (Howto & Style). As categorias com maior média são, em ordem, **Howto & Style, Film & Animation e Sports**. Isso indica que, dentro do grupo de vídeos em alta, essas categorias têm mais “viajantes” – vídeos que permanecem em alta em múltiplos países.\n* As diferenças entre média e mediana mostram que a distribuição é assimétrica: poucos vídeos alcançam muitos países, puxando a média para cima.\n\n#### Avisos\n* Todos os grupos têm mais de 30 vídeos, então a amostra é suficiente para uma visão geral.\n* Como só analisamos vídeos que já entraram em alta, os resultados não se estendem a vídeos que nunca “viralizaram”.  \n\n**Próximos passos possíveis**  \n1. Analisar se o **tempo até entrar em alta (hours_to_trend)** ou a **duração** influencia a quantidade de países.  \n2. Ver a distribuição por **país de origem** (channel_country) para entender se canais de certos países tendem a “viajar” mais.  \n\nSe quiser explorar algum desses ângulos, é só dizer!",
+  "status": "ok",
+  "steps": [
+    {
+      "kind": "llm",
+      "name": "groq:openai/gpt-oss-120b",
+      "input": {},
+      "output_preview": "finish_reason=tool_calls · 1 ferramenta(s)",
+      "ok": true,
+      "elapsed_ms": 23183.9,
+      "extra": {
+        "finish_reason": "tool_calls",
+        "input_tokens": 3074,
+        "output_tokens": 276
+      }
+    },
+    {
+      "kind": "tool",
+      "name": "run_sql",
+      "input": {
+        "purpose": "Calcular mediana e média do número de países em que cada vídeo ficou em alta por categoria, com contagem de vídeos por categoria.",
+        "sql": "SELECT category,\n       COUNT(*) AS n_videos,\n       MEDIAN(n_trending_countries) AS median_countries,\n       AVG(n_trending_countries)::DOUBLE AS mean_countries\nFROM videos\nGROUP BY category\nORDER BY median_countries DESC, mean_countries DESC"
+      },
+      "output_preview": "result_id: r1\nlinhas: 15\ncolunas: category, n_videos, median_countries, mean_countries\ntempo: 24 ms\nSQL validado:\nSELECT category, COUNT(*) AS n_videos, MEDIAN(n_trending_countries) AS median_countries, CAST(AVG(n_trending_countries) AS DOUBLE) AS mean_countries FROM videos GROUP BY category ORDER BY median_countries DESC, mean_countries DESC LIMIT 200\n| category | n_videos | median_countries | me…",
+      "ok": true,
+      "elapsed_ms": 28.8,
+      "extra": {
+        "purpose": "Calcular mediana e média do número de países em que cada vídeo ficou em alta por categoria, com contagem de vídeos por categoria.",
+        "result_id": "r1",
+        "sql_validated": "SELECT category, COUNT(*) AS n_videos, MEDIAN(n_trending_countries) AS median_countries, CAST(AVG(n_trending_countries) AS DOUBLE) AS mean_countries FROM videos GROUP BY category ORDER BY median_countries DESC, mean_countries DESC LIMIT 200",
+        "row_count": 15,
+        "truncated": false,
+        "elapsed_ms": 23.5,
+        "columns": [
+          "category",
+          "n_videos",
+          "median_countries",
+          "mean_countries"
+        ],
+        "result_text": "result_id: r1\nlinhas: 15\ncolunas: category, n_videos, median_countries, mean_countries\ntempo: 24 ms\nSQL validado:\nSELECT category, COUNT(*) AS n_videos, MEDIAN(n_trending_countries) AS median_countries, CAST(AVG(n_trending_countries) AS DOUBLE) AS mean_countries FROM videos GROUP BY category ORDER BY median_countries DESC, mean_countries DESC LIMIT 200\n| category | n_videos | median_countries | mean_countries |\n|---|---|---|---|\n| Howto & Style | 3402 | 1 | 3.09 |\n| Film & Animation | 13275 | 1 | 2.9 |\n| Sports | 20640 | 1 | 2.83 |\n| Comedy | 8350 | 1 | 2.57 |\n| Pets & Animals | 795 | 1 | 2.46 |\n| Entertainment | 82766 | 1 | 2.46 |\n| Science & Technology | 3530 | 1 | 2.32 |\n| People & Blogs | 71597 | 1 | 2.3 |\n| Gaming | 584309 | 1 | 2.23 |\n| Travel & Events | 1379 | 1 | 2.14 |\n| Education | 3129 | 1 | 2.09 |\n| Autos & Vehicles | 2363 | 1 | 2.07 |\n| Music | 149807 | 1 | 2.02 |\n| News & Politics | 10503 | 1 | 1.67 |\n| Unknown | 463 | 1 | 1.39 |"
+      }
+    },
+    {
+      "kind": "llm",
+      "name": "groq:openai/gpt-oss-120b",
+      "input": {},
+      "output_preview": "finish_reason=stop · 0 ferramenta(s)",
+      "ok": true,
+      "elapsed_ms": 32795.8,
+      "extra": {
+        "finish_reason": "stop",
+        "input_tokens": 3574,
+        "output_tokens": 800
+      }
+    },
+    {
+      "kind": "guard",
+      "name": "grounding",
+      "input": {},
+      "output_preview": "48 números checados; 0 não verificados",
+      "ok": true,
+      "elapsed_ms": 0.0,
+      "extra": {
+        "unverified_numbers": [],
+        "checked": 48,
+        "verified": 48,
+        "ignored": 3
+      }
+    }
+  ],
+  "charts": [],
+  "usage": {
+    "input_tokens": 6648,
+    "output_tokens": 1076,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0,
+    "llm_calls": 2
+  },
+  "cost_usd": 0.0,
+  "latency_s": 56.22,
+  "model": "groq:openai/gpt-oss-120b",
+  "error": null
+}

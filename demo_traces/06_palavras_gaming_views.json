@@ -1,0 +1,84 @@
+{
+  "question": "Em vídeos de Gaming em alta no Brasil, quais palavras do título estão associadas às maiores medianas de views? Considere só palavras que aparecem em pelo menos 50 vídeos.",
+  "answer": "Esses dados são **observacionais** – eles descrevem apenas os vídeos de *Gaming* que já entraram em alta no Brasil. Não podemos afirmar que usar determinada palavra “faz” o vídeo bombar; podemos apenas apontar a **associação** entre a presença da palavra no título e a mediana de visualizações observada.\n\n### Palavras que aparecem em ≥ 50 vídeos de Gaming em alta no Brasil e têm as maiores medianas de views\n\n| palavra      | n vídeos | mediana de views |\n|-------------|----------|------------------|\n| **reveal**   | 54       | 1 991 252 |\n| **animation**| 86       | 1 257 424 |\n| **en**       | 56       | 1 191 196 |\n| **official** | 104      |   996 998 |\n| **loko**     | 101      |   908 200 |\n| **paulinho** | 102      |   907 038 |\n| **day**      | 117      |   885 693 |\n| **t1**       | 54       |   860 106 |\n| **motorcycle**| 80      |   713 976 |\n| **christmas**| 60       |   713 258 |\n| **bridge**   | 63       |   710 146 |\n| **granny**   | 473      |   701 568 |\n| **moments**  | 83       |   681 598 |\n| **stream**   | 205      |   672 299 |\n| **every**    | 290      |   657 553 |\n| **superhero**| 140      |   654 534 |\n| **iron**     | 135      |   650 933 |\n| **rescue**   | 128      |   650 900 |\n| **ride**     | 66       |   649 232 |\n| **viewer**   | 217      |   640 830 |\n\n#### O que isso indica\n- **“reveal”** lidera a lista, com a maior mediana de visualizações entre as palavras analisadas, embora apareça em apenas 54 vídeos.\n- Palavras relacionadas a **animação**, **eventos de jogo (stream, moments, superhero)** e termos **idiomáticos ou de nicho** (ex.: “loko”, “paulinho”) também estão associadas a medianas altas.\n- A presença de termos genéricos como **“day”, “every” ou “viewer”** ainda gera boas medianas, possivelmente porque aparecem em títulos de vídeos de grande alcance (ex.: “day in the life”, “every trick”).\n\n#### Limitações\n- A mediana reflete o **snapshot de visualizações** no momento da coleta; vídeos mais antigos podem ter acumulado mais visualizações que os recentes.\n- Só consideramos vídeos que **já entraram em alta**; padrões podem ser diferentes para a maioria dos vídeos que nunca trendam.\n- Palavras são tratadas de forma literal (não há stemming nem agrupamento de sinônimos), então “reveal” e “revealed” são contadas separadamente.\n\n**Próximos passos sugeridos**  \n1. Verificar se essas palavras permanecem relevantes ao analisar outros períodos ou outros países.  \n2. Testar a combinação de duas ou mais dessas palavras em títulos (ex.: “official reveal” vs. “official stream”) para ver se há efeito aditivo.  \n3. Avaliar se a presença dessas palavras interage com outras variáveis (duração, horário de publicação, tamanho do canal).",
+  "status": "ok",
+  "steps": [
+    {
+      "kind": "llm",
+      "name": "groq:openai/gpt-oss-120b",
+      "input": {},
+      "output_preview": "finish_reason=tool_calls · 1 ferramenta(s)",
+      "ok": true,
+      "elapsed_ms": 1603.7,
+      "extra": {
+        "finish_reason": "tool_calls",
+        "input_tokens": 3079,
+        "output_tokens": 530
+      }
+    },
+    {
+      "kind": "tool",
+      "name": "run_sql",
+      "input": {
+        "purpose": "Obter palavras dos títulos de vídeos Gaming em alta no Brasil, com pelo menos 50 ocorrências, e suas medianas de visualizações.",
+        "sql": "WITH filtered AS (\n SELECT v.video_id, v.title, v.views\n FROM videos v\n JOIN video_country vc ON vc.video_id = v.video_id\n WHERE v.category = 'Gaming' AND vc.country = 'Brazil'\n), words AS (\n SELECT v.views,\n        UNNEST(STRING_SPLIT(REGEXP_REPLACE(LOWER(v.title), '[^a-z0-9à-ú ]', ' ', 'g'), ' ')) AS palavra\n FROM filtered v\n)\nSELECT palavra,\n       COUNT(*) AS n_videos,\n       MEDIAN(views) AS median_views\nFROM words\nWHERE palavra <> ''\nGROUP BY palavra\nHAVING COUNT(*) >= 50\nORDER BY median_views DESC\nLIMIT 20;"
+      },
+      "output_preview": "result_id: r1\nlinhas: 20\ncolunas: palavra, n_videos, median_views\ntempo: 135 ms\nSQL validado:\nWITH filtered AS (SELECT v.video_id, v.title, v.views FROM videos AS v JOIN video_country AS vc ON vc.video_id = v.video_id WHERE v.category = 'Gaming' AND vc.country = 'Brazil'), words AS (SELECT v.views, UNNEST(STR_SPLIT(REGEXP_REPLACE(LOWER(v.title), '[^a-z0-9à-ú ]', ' ', 'g'), ' ')) AS palavra FROM fi…",
+      "ok": true,
+      "elapsed_ms": 144.9,
+      "extra": {
+        "purpose": "Obter palavras dos títulos de vídeos Gaming em alta no Brasil, com pelo menos 50 ocorrências, e suas medianas de visualizações.",
+        "result_id": "r1",
+        "sql_validated": "WITH filtered AS (SELECT v.video_id, v.title, v.views FROM videos AS v JOIN video_country AS vc ON vc.video_id = v.video_id WHERE v.category = 'Gaming' AND vc.country = 'Brazil'), words AS (SELECT v.views, UNNEST(STR_SPLIT(REGEXP_REPLACE(LOWER(v.title), '[^a-z0-9à-ú ]', ' ', 'g'), ' ')) AS palavra FROM filtered AS v) SELECT palavra, COUNT(*) AS n_videos, MEDIAN(views) AS median_views FROM words WHERE palavra <> '' GROUP BY palavra HAVING COUNT(*) >= 50 ORDER BY median_views DESC LIMIT 20",
+        "row_count": 20,
+        "truncated": false,
+        "elapsed_ms": 135.3,
+        "columns": [
+          "palavra",
+          "n_videos",
+          "median_views"
+        ],
+        "result_text": "result_id: r1\nlinhas: 20\ncolunas: palavra, n_videos, median_views\ntempo: 135 ms\nSQL validado:\nWITH filtered AS (SELECT v.video_id, v.title, v.views FROM videos AS v JOIN video_country AS vc ON vc.video_id = v.video_id WHERE v.category = 'Gaming' AND vc.country = 'Brazil'), words AS (SELECT v.views, UNNEST(STR_SPLIT(REGEXP_REPLACE(LOWER(v.title), '[^a-z0-9à-ú ]', ' ', 'g'), ' ')) AS palavra FROM filtered AS v) SELECT palavra, COUNT(*) AS n_videos, MEDIAN(views) AS median_views FROM words WHERE palavra <> '' GROUP BY palavra HAVING COUNT(*) >= 50 ORDER BY median_views DESC LIMIT 20\n| palavra | n_videos | median_views |\n|---|---|---|\n| reveal | 54 | 1991252 |\n| animation | 86 | 1257424 |\n| en | 56 | 1191196 |\n| official | 104 | 996998 |\n| loko | 101 | 908200 |\n| paulinho | 102 | 907038 |\n| day | 117 | 885693 |\n| t1 | 54 | 860106 |\n| motorcycle | 80 | 713976 |\n| christmas | 60 | 713258 |\n| bridge | 63 | 710146 |\n| granny | 473 | 701568 |\n| moments | 83 | 681598 |\n| stream | 205 | 672299 |\n| every | 290 | 657553 |\n| superhero | 140 | 654534 |\n| iron | 135 | 650933 |\n| rescue | 128 | 650900 |\n| ride | 66 | 649232 |\n| viewer | 217 | 640830 |"
+      }
+    },
+    {
+      "kind": "llm",
+      "name": "groq:openai/gpt-oss-120b",
+      "input": {},
+      "output_preview": "finish_reason=stop · 0 ferramenta(s)",
+      "ok": true,
+      "elapsed_ms": 2697.2,
+      "extra": {
+        "finish_reason": "stop",
+        "input_tokens": 3722,
+        "output_tokens": 988
+      }
+    },
+    {
+      "kind": "guard",
+      "name": "grounding",
+      "input": {},
+      "output_preview": "41 números checados; 0 não verificados",
+      "ok": true,
+      "elapsed_ms": 0.0,
+      "extra": {
+        "unverified_numbers": [],
+        "checked": 41,
+        "verified": 41,
+        "ignored": 4
+      }
+    }
+  ],
+  "charts": [],
+  "usage": {
+    "input_tokens": 6801,
+    "output_tokens": 1518,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0,
+    "llm_calls": 2
+  },
+  "cost_usd": 0.0,
+  "latency_s": 4.665,
+  "model": "groq:openai/gpt-oss-120b",
+  "error": null
+}

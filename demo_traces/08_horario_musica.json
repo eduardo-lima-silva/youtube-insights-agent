@@ -1,0 +1,84 @@
+{
+  "question": "Em que horário de Brasília os vídeos de Música que entraram em alta no Brasil foram publicados com a maior mediana de views? Agrupe por hora e mostre o n.",
+  "answer": "**Observação importante:** os dados são apenas de vídeos que já entraram em alta; por isso não podemos afirmar causalidade entre o horário de publicação e o número de visualizações. O que podemos observar é a **associação** entre hora de publicação (em Brasília) e a mediana de visualizações desses vídeos.\n\n| hora (BRT) | mediana de views | n (vídeos) |\n|------------|------------------|------------|\n| **02 h**   | **2 104 802**    | 96 |\n| 01 h       | 1 806 375        | 170 |\n| 03 h       | 244 436          | 28 |\n| 04 h       | 237 675          | 43 |\n| 13 h       | 103 453          | 355 |\n| 08 h       | 94 486           | 200 |\n| 11 h       | 65 853           | 1 049 |\n| …          | …                | … |\n\nA hora de publicação que apresenta a **maior mediana de visualizações** para vídeos da categoria **Música** que ficaram em alta no **Brasil** é **02 h (BRT)**, com 96 vídeos analisados.\n\n*Todas as faixas de n são ≥ 28, portanto os grupos têm tamanho suficiente para dar uma indicação razoável da tendência.*",
+  "status": "ok",
+  "steps": [
+    {
+      "kind": "llm",
+      "name": "groq:openai/gpt-oss-120b",
+      "input": {},
+      "output_preview": "finish_reason=tool_calls · 1 ferramenta(s)",
+      "ok": true,
+      "elapsed_ms": 28300.4,
+      "extra": {
+        "finish_reason": "tool_calls",
+        "input_tokens": 3079,
+        "output_tokens": 640
+      }
+    },
+    {
+      "kind": "tool",
+      "name": "run_sql",
+      "input": {
+        "purpose": "Calcular mediana de visualizações e contagem por hora de publicação em Brasília para vídeos de Música que ficaram em alta no Brasil.",
+        "sql": "WITH br AS (\n SELECT v.video_id, v.views,\n        ((v.pub_hour - 3 + 24) % 24) AS br_hour\n FROM videos v\n JOIN video_country vc ON v.video_id = vc.video_id\n WHERE vc.country = 'Brazil' AND v.category = 'Music'\n)\nSELECT br_hour AS hora_br, median(views) AS mediana_views, count(*) AS n\nFROM br\nGROUP BY br_hour\nORDER BY mediana_views DESC;"
+      },
+      "output_preview": "result_id: r1\nlinhas: 24\ncolunas: hora_br, mediana_views, n\ntempo: 25 ms\nSQL validado:\nWITH br AS (SELECT v.video_id, v.views, ((v.pub_hour - 3 + 24) % 24) AS br_hour FROM videos AS v JOIN video_country AS vc ON v.video_id = vc.video_id WHERE vc.country = 'Brazil' AND v.category = 'Music') SELECT br_hour AS hora_br, MEDIAN(views) AS mediana_views, COUNT(*) AS n FROM br GROUP BY br_hour ORDER BY me…",
+      "ok": true,
+      "elapsed_ms": 43.8,
+      "extra": {
+        "purpose": "Calcular mediana de visualizações e contagem por hora de publicação em Brasília para vídeos de Música que ficaram em alta no Brasil.",
+        "result_id": "r1",
+        "sql_validated": "WITH br AS (SELECT v.video_id, v.views, ((v.pub_hour - 3 + 24) % 24) AS br_hour FROM videos AS v JOIN video_country AS vc ON v.video_id = vc.video_id WHERE vc.country = 'Brazil' AND v.category = 'Music') SELECT br_hour AS hora_br, MEDIAN(views) AS mediana_views, COUNT(*) AS n FROM br GROUP BY br_hour ORDER BY mediana_views DESC LIMIT 200",
+        "row_count": 24,
+        "truncated": false,
+        "elapsed_ms": 25.3,
+        "columns": [
+          "hora_br",
+          "mediana_views",
+          "n"
+        ],
+        "result_text": "result_id: r1\nlinhas: 24\ncolunas: hora_br, mediana_views, n\ntempo: 25 ms\nSQL validado:\nWITH br AS (SELECT v.video_id, v.views, ((v.pub_hour - 3 + 24) % 24) AS br_hour FROM videos AS v JOIN video_country AS vc ON v.video_id = vc.video_id WHERE vc.country = 'Brazil' AND v.category = 'Music') SELECT br_hour AS hora_br, MEDIAN(views) AS mediana_views, COUNT(*) AS n FROM br GROUP BY br_hour ORDER BY mediana_views DESC LIMIT 200\n| hora_br | mediana_views | n |\n|---|---|---|\n| 2 | 2104802 | 96 |\n| 1 | 1806375 | 170 |\n| 3 | 244436 | 28 |\n| 4 | 237675 | 43 |\n| 13 | 103453 | 355 |\n| 8 | 94486 | 200 |\n| 11 | 65853 | 1049 |\n| 20 | 62693 | 322 |\n| 12 | 61087 | 1637 |\n| 14 | 60907 | 289 |\n| 17 | 53423 | 359 |\n| 5 | 52946 | 179 |\n| 18 | 52361 | 850 |\n| 19 | 52278 | 469 |\n| 15 | 48791 | 284 |\n| 16 | 45230 | 274 |\n| 21 | 44103 | 881 |\n| 23 | 43732 | 64 |\n| 22 | 42852 | 105 |\n| 10 | 40977 | 721 |\n| 9 | 40527 | 322 |\n| 0 | 30516 | 350 |\n| 7 | 26348 | 1312 |\n| 6 | 22219 | 387 |"
+      }
+    },
+    {
+      "kind": "llm",
+      "name": "groq:openai/gpt-oss-120b",
+      "input": {},
+      "output_preview": "finish_reason=stop · 0 ferramenta(s)",
+      "ok": true,
+      "elapsed_ms": 10755.7,
+      "extra": {
+        "finish_reason": "stop",
+        "input_tokens": 3678,
+        "output_tokens": 387
+      }
+    },
+    {
+      "kind": "guard",
+      "name": "grounding",
+      "input": {},
+      "output_preview": "23 números checados; 0 não verificados",
+      "ok": true,
+      "elapsed_ms": 0.0,
+      "extra": {
+        "unverified_numbers": [],
+        "checked": 23,
+        "verified": 23,
+        "ignored": 1
+      }
+    }
+  ],
+  "charts": [],
+  "usage": {
+    "input_tokens": 6757,
+    "output_tokens": 1027,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0,
+    "llm_calls": 2
+  },
+  "cost_usd": 0.0,
+  "latency_s": 39.311,
+  "model": "groq:openai/gpt-oss-120b",
+  "error": null
+}

@@ -1,0 +1,83 @@
+{
+  "question": "Quais palavras aparecem mais nos títulos de vídeos de carros (Autos & Vehicles) que ficaram em alta no Brasil?",
+  "answer": "**Palavras mais frequentes nos títulos (≥ 4 caracteres) de vídeos da categoria “Autos & Vehicles” que ficaram em alta no Brasil**\n\n| posição | palavra | ocorrências |\n|---------|---------|-------------|\n| 1 | novo | 12 |\n| 2 | 2025 | 12 |\n| 3 | mais | 7 |\n| 4 | carro | 7 |\n| 5 | bitelonatural | 5 |\n| 6 | tudo | 5 |\n| 7 | cross | 5 |\n| 8 | creta | 4 |\n| 9 | motor | 4 |\n| 10 | qual | 4 |\n| 11 | honda | 4 |\n| 12 | tera | 4 |\n| 13 | rápida | 3 |\n| 14 | volta | 3 |\n| 15 | atualização | 3 |\n| 16 | polo | 3 |\n| 17 | picape | 3 |\n| 18 | toyota | 3 |\n| 19 | fusca | 3 |\n| 20 | skyline | 3 |\n\n**Observações**\n\n- Esses números vêm de  **todos os vídeos que entraram em alta no Brasil** e que têm a categoria “Autos & Vehicles” na base atual.  \n- Cada contagem representa quantas vezes a palavra aparece nos títulos desses vídeos; palavras distintas podem aparecer em um mesmo título e contam separadamente.  \n- Todas as categorias têm **menos de 30 ocorrências**, o que indica que a amostra é pequena. Assim, os padrões observados devem ser interpretados com cautela e não podem ser generalizados para todo o conteúdo automotivo do YouTube.  \n\n**Próximos passos possíveis**\n\n- Agrupar palavras em temas (ex.: marcas, tipos de veículo) para ver se há padrões de foco de conteúdo.  \n- Comparar a frequência dessas palavras com a de outros países (ex.: Brasil × Estados Unidos) para detectar diferenças regionais.  \n\nCaso queira algum desses aprofundamentos, é só falar!",
+  "status": "ok",
+  "steps": [
+    {
+      "kind": "llm",
+      "name": "groq:openai/gpt-oss-120b",
+      "input": {},
+      "output_preview": "finish_reason=tool_calls · 1 ferramenta(s)",
+      "ok": true,
+      "elapsed_ms": 2258.0,
+      "extra": {
+        "finish_reason": "tool_calls",
+        "input_tokens": 3066,
+        "output_tokens": 446
+      }
+    },
+    {
+      "kind": "tool",
+      "name": "run_sql",
+      "input": {
+        "purpose": "Obter top 20 palavras (mais de 3 caracteres) nos títulos de vídeos da categoria Autos & Vehicles que ficaram em alta no Brasil.",
+        "sql": "WITH words AS (\n    SELECT UNNEST(string_split(regexp_replace(lower(v.title), '[^a-z0-9à-ú ]', ' ', 'g'), ' ')) AS palavra\n    FROM videos v\n    JOIN video_country vc ON v.video_id = vc.video_id\n    WHERE vc.country = 'Brazil'\n      AND v.category = 'Autos & Vehicles'\n)\nSELECT palavra, COUNT(*) AS n\nFROM words\nWHERE length(palavra) > 3\nGROUP BY palavra\nORDER BY n DESC\nLIMIT 20;"
+      },
+      "output_preview": "result_id: r1\nlinhas: 20\ncolunas: palavra, n\ntempo: 51 ms\nSQL validado:\nWITH words AS (SELECT UNNEST(STR_SPLIT(REGEXP_REPLACE(LOWER(v.title), '[^a-z0-9à-ú ]', ' ', 'g'), ' ')) AS palavra FROM videos AS v JOIN video_country AS vc ON v.video_id = vc.video_id WHERE vc.country = 'Brazil' AND v.category = 'Autos & Vehicles') SELECT palavra, COUNT(*) AS n FROM words WHERE LENGTH(palavra) > 3 GROUP BY pa…",
+      "ok": true,
+      "elapsed_ms": 373.7,
+      "extra": {
+        "purpose": "Obter top 20 palavras (mais de 3 caracteres) nos títulos de vídeos da categoria Autos & Vehicles que ficaram em alta no Brasil.",
+        "result_id": "r1",
+        "sql_validated": "WITH words AS (SELECT UNNEST(STR_SPLIT(REGEXP_REPLACE(LOWER(v.title), '[^a-z0-9à-ú ]', ' ', 'g'), ' ')) AS palavra FROM videos AS v JOIN video_country AS vc ON v.video_id = vc.video_id WHERE vc.country = 'Brazil' AND v.category = 'Autos & Vehicles') SELECT palavra, COUNT(*) AS n FROM words WHERE LENGTH(palavra) > 3 GROUP BY palavra ORDER BY n DESC LIMIT 20",
+        "row_count": 20,
+        "truncated": false,
+        "elapsed_ms": 50.9,
+        "columns": [
+          "palavra",
+          "n"
+        ],
+        "result_text": "result_id: r1\nlinhas: 20\ncolunas: palavra, n\ntempo: 51 ms\nSQL validado:\nWITH words AS (SELECT UNNEST(STR_SPLIT(REGEXP_REPLACE(LOWER(v.title), '[^a-z0-9à-ú ]', ' ', 'g'), ' ')) AS palavra FROM videos AS v JOIN video_country AS vc ON v.video_id = vc.video_id WHERE vc.country = 'Brazil' AND v.category = 'Autos & Vehicles') SELECT palavra, COUNT(*) AS n FROM words WHERE LENGTH(palavra) > 3 GROUP BY palavra ORDER BY n DESC LIMIT 20\n| palavra | n |\n|---|---|\n| novo | 12 |\n| 2025 | 12 |\n| mais | 7 |\n| carro | 7 |\n| bitelonatural | 5 |\n| tudo | 5 |\n| cross | 5 |\n| creta | 4 |\n| motor | 4 |\n| qual | 4 |\n| honda | 4 |\n| tera | 4 |\n| rápida | 3 |\n| volta | 3 |\n| atualização | 3 |\n| polo | 3 |\n| picape | 3 |\n| toyota | 3 |\n| fusca | 3 |\n| skyline | 3 |"
+      }
+    },
+    {
+      "kind": "llm",
+      "name": "groq:openai/gpt-oss-120b",
+      "input": {},
+      "output_preview": "finish_reason=stop · 0 ferramenta(s)",
+      "ok": true,
+      "elapsed_ms": 1727.3,
+      "extra": {
+        "finish_reason": "stop",
+        "input_tokens": 3545,
+        "output_tokens": 517
+      }
+    },
+    {
+      "kind": "guard",
+      "name": "grounding",
+      "input": {},
+      "output_preview": "21 números checados; 0 não verificados",
+      "ok": true,
+      "elapsed_ms": 0.0,
+      "extra": {
+        "unverified_numbers": [],
+        "checked": 21,
+        "verified": 21,
+        "ignored": 22
+      }
+    }
+  ],
+  "charts": [],
+  "usage": {
+    "input_tokens": 6611,
+    "output_tokens": 963,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0,
+    "llm_calls": 2
+  },
+  "cost_usd": 0.0,
+  "latency_s": 8.817,
+  "model": "groq:openai/gpt-oss-120b",
+  "error": null
+}

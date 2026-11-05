@@ -16,6 +16,23 @@ Continuação do projeto [youtube-views-prediction](https://github.com/eduardo-l
 | **Recusa e limites** | "Qual duração **causa** mais views?" | Explica que dados observacionais não permitem afirmar causalidade e oferece a análise associativa |
 | **Títulos com trade-offs** | "Sugira 3 títulos para um vídeo sobre Python para entrevistas" | O LLM gera; o LightGBM pontua; o SHAP explica; empates dentro da margem do modelo são sinalizados. **Nunca "o melhor título"** |
 
+## O que dá para descobrir: exemplos reais (e por que importam)
+
+Perguntas feitas ao vivo ao agente. Todos os números foram **recalculados com SQL independente**. São associações em vídeos que entraram em alta, ou seja, **hipóteses para testar**, não causas.
+
+| Pergunta | Achado | O que dá para fazer com isso |
+|---|---|---|
+| Palavras em títulos de **Gaming** ligadas a mais views (BR) | "reveal": mediana de **2,0 mi** × 56,8 mil do Gaming em geral (~35×); "official" e nomes de criadores também se destacam | Cobrir **anúncios/reveals** rápido e considerar **collabs** |
+| **Velocidade** até entrar em alta (BR) | Gaming **~12 h** × Música **~26 h** | Saber **quando impulsionar** e quando medir o sucesso |
+| **Horário** de publicação da Música (BR) | 1h–2h de Brasília: mediana de **1,8–2,1 mi** × ~100 mil ao meio-dia | **Calendário de lançamentos** (efeito provável de grandes lançamentos globais) |
+| **Shorts × longos** por categoria (BR) | Gaming **~10×** a favor dos Shorts; Sports empata; Film & Animation favorece os longos | **Estratégia de formato por nicho** |
+| Títulos **com "?"** (BR) | +29% em People & Blogs, mas −70% em Sports e −88% em Film | Não há regra universal de título: **testar por nicho** |
+| **Engajamento** (likes/view, BR) | Autos 7,5% · Comedy 7,4% · Music 1,9% | **Benchmarks de métricas por categoria** |
+| **Alcance internacional** | Howto & Style 3,1 países/vídeo · News 1,7 | Priorizar **legendas e tradução** onde o conteúdo viaja |
+| Palavras em títulos de **carros** (BR) | "novo", "2025", modelos e marcas | **Pauta e tags** em torno de lançamentos (amostra pequena: 69 vídeos) |
+
+Detalhes, ressalvas e a revisão de cada resposta do agente estão em [`docs/05_analises_profundas.md`](docs/05_analises_profundas.md). Numa dessas análises o texto do agente errou a magnitude, e a tabela de dados estava certa. É exatamente por isso que o app mostra o SQL, os dados brutos e a checagem automática de números.
+
 ## Arquitetura
 
 ```

@@ -1,0 +1,84 @@
+{
+  "question": "Quais categorias entram em alta mais rápido depois de publicadas, no Brasil? Use a mediana de horas até entrar em alta e mostre o n de cada categoria.",
+  "answer": "Esses números vêm apenas dos vídeos que **entraram em alta** (trending) e, portanto, descrevem o comportamento desse sub‑conjunto, não de todo o catálogo do YouTube.\n\n| categoria | n de vídeos (Brasil) | mediana de horas até entrar em alta |\n|-----------|---------------------|--------------------------------------|\n| **Unknown** | 10 | **0,78** |\n| Gaming | 30 221 | 11,75 |\n| Sports | 2 097 | 13,88 |\n| Entertainment | 4 884 | 14,00 |\n| Travel & Events | 37 | 14,99 |\n| Film & Animation | 762 | 14,99 |\n| Howto & Style | 24 | 15,00 |\n| Autos & Vehicles | 69 | 15,50 |\n| People & Blogs | 5 020 | 15,83 |\n| News & Politics | 213 | 16,65 |\n| Education | 104 | 19,00 |\n| Comedy | 173 | 19,49 |\n| Pets & Animals | 26 | 20,90 |\n| Science & Technology | 297 | 20,98 |\n| Music | 10 746 | 25,96 |\n\n### Interpretação rápida  \n- **Categorias que chegam mais rápido** (menor mediana) são *Unknown* (0,8 h), seguida por *Gaming* (≈ 12 h) e *Sports* (≈ 14 h).  \n- *Music* demora bem mais (≈ 26 h) para aparecer em alta.  \n\n### Avisos de tamanho da amostra  \n- As categorias **Unknown**, **Howto & Style** e **Pets & Animals** têm menos de 30 vídeos (10, 24 e 26, respectivamente); as estimativas de mediana nesses casos são menos estáveis.  \n- *Travel & Events* também tem uma amostra pequena (37 vídeos), então a mediana pode variar se novos dados forem incluídos.\n\nEm resumo, no Brasil, vídeos de **Gaming** e **Sports** tendem a entrar em alta mais rapidamente após a publicação, enquanto **Music** costuma levar mais tempo. Use esses padrões como referência, mas lembre‑se de que eles se aplicam apenas aos vídeos que já alcançaram a seção de trending.",
+  "status": "ok",
+  "steps": [
+    {
+      "kind": "llm",
+      "name": "groq:openai/gpt-oss-120b",
+      "input": {},
+      "output_preview": "finish_reason=tool_calls · 1 ferramenta(s)",
+      "ok": true,
+      "elapsed_ms": 23633.0,
+      "extra": {
+        "finish_reason": "tool_calls",
+        "input_tokens": 3078,
+        "output_tokens": 374
+      }
+    },
+    {
+      "kind": "tool",
+      "name": "run_sql",
+      "input": {
+        "purpose": "Calcular mediana de horas até entrar em alta e contagem de vídeos por categoria, considerando apenas vídeos que ficaram em alta no Brasil.",
+        "sql": "WITH br_videos AS (\n    SELECT DISTINCT v.video_id, v.category, v.hours_to_trend\n    FROM videos v\n    JOIN video_country vc ON v.video_id = vc.video_id\n    WHERE vc.country = 'Brazil'\n)\nSELECT\n    category,\n    COUNT(*) AS n_videos,\n    median(hours_to_trend) AS med_hours_to_trend\nFROM br_videos\nGROUP BY category\nORDER BY med_hours_to_trend ASC;"
+      },
+      "output_preview": "result_id: r1\nlinhas: 15\ncolunas: category, n_videos, med_hours_to_trend\ntempo: 50 ms\nSQL validado:\nWITH br_videos AS (SELECT DISTINCT v.video_id, v.category, v.hours_to_trend FROM videos AS v JOIN video_country AS vc ON v.video_id = vc.video_id WHERE vc.country = 'Brazil') SELECT category, COUNT(*) AS n_videos, MEDIAN(hours_to_trend) AS med_hours_to_trend FROM br_videos GROUP BY category ORDER BY…",
+      "ok": true,
+      "elapsed_ms": 56.9,
+      "extra": {
+        "purpose": "Calcular mediana de horas até entrar em alta e contagem de vídeos por categoria, considerando apenas vídeos que ficaram em alta no Brasil.",
+        "result_id": "r1",
+        "sql_validated": "WITH br_videos AS (SELECT DISTINCT v.video_id, v.category, v.hours_to_trend FROM videos AS v JOIN video_country AS vc ON v.video_id = vc.video_id WHERE vc.country = 'Brazil') SELECT category, COUNT(*) AS n_videos, MEDIAN(hours_to_trend) AS med_hours_to_trend FROM br_videos GROUP BY category ORDER BY med_hours_to_trend ASC LIMIT 200",
+        "row_count": 15,
+        "truncated": false,
+        "elapsed_ms": 50.1,
+        "columns": [
+          "category",
+          "n_videos",
+          "med_hours_to_trend"
+        ],
+        "result_text": "result_id: r1\nlinhas: 15\ncolunas: category, n_videos, med_hours_to_trend\ntempo: 50 ms\nSQL validado:\nWITH br_videos AS (SELECT DISTINCT v.video_id, v.category, v.hours_to_trend FROM videos AS v JOIN video_country AS vc ON v.video_id = vc.video_id WHERE vc.country = 'Brazil') SELECT category, COUNT(*) AS n_videos, MEDIAN(hours_to_trend) AS med_hours_to_trend FROM br_videos GROUP BY category ORDER BY med_hours_to_trend ASC LIMIT 200\n| category | n_videos | med_hours_to_trend |\n|---|---|---|\n| Unknown | 10 | 0.7807 |\n| Gaming | 30221 | 11.75 |\n| Sports | 2097 | 13.88 |\n| Entertainment | 4884 | 14 |\n| Travel & Events | 37 | 14.99 |\n| Film & Animation | 762 | 14.99 |\n| Howto & Style | 24 | 15 |\n| Autos & Vehicles | 69 | 15.5 |\n| People & Blogs | 5020 | 15.83 |\n| News & Politics | 213 | 16.65 |\n| Education | 104 | 19 |\n| Comedy | 173 | 19.49 |\n| Pets & Animals | 26 | 20.9 |\n| Science & Technology | 297 | 20.98 |\n| Music | 10746 | 25.96 |"
+      }
+    },
+    {
+      "kind": "llm",
+      "name": "groq:openai/gpt-oss-120b",
+      "input": {},
+      "output_preview": "finish_reason=stop · 0 ferramenta(s)",
+      "ok": true,
+      "elapsed_ms": 33084.6,
+      "extra": {
+        "finish_reason": "stop",
+        "input_tokens": 3581,
+        "output_tokens": 682
+      }
+    },
+    {
+      "kind": "guard",
+      "name": "grounding",
+      "input": {},
+      "output_preview": "37 números checados; 0 não verificados",
+      "ok": true,
+      "elapsed_ms": 0.0,
+      "extra": {
+        "unverified_numbers": [],
+        "checked": 37,
+        "verified": 37,
+        "ignored": 2
+      }
+    }
+  ],
+  "charts": [],
+  "usage": {
+    "input_tokens": 6659,
+    "output_tokens": 1056,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0,
+    "llm_calls": 2
+  },
+  "cost_usd": 0.0,
+  "latency_s": 56.988,
+  "model": "groq:openai/gpt-oss-120b",
+  "error": null
+}

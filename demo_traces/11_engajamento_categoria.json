@@ -1,0 +1,84 @@
+{
+  "question": "Qual a taxa mediana de likes por view em cada categoria entre os vídeos em alta no Brasil? Quais categorias engajam mais o público?",
+  "answer": "Esses dados são observacionais (apenas vídeos que já entraram em alta); portanto não podemos afirmar que alguma categoria “causa” maior engajamento, apenas que há associação entre categoria e a taxa de likes por view nos vídeos que trendaram no Brasil.\n\n**Taxa mediana de likes / view por categoria (Brasil)**  \n\n| Categoria | nº vídeos* | Mediana (likes ÷ views) |\n|---|---|---|\n| Unknown | 10 | 0.1082 |\n| Howto & Style | 23 | 0.0843 |\n| Autos & Vehicles | 69 | 0.0751 |\n| Comedy | 163 | 0.0737 |\n| Entertainment | 4 857 | 0.0712 |\n| Travel & Events | 37 | 0.0704 |\n| Film & Animation | 756 | 0.0469 |\n| Education | 103 | 0.0442 |\n| Gaming | 30 006 | 0.0425 |\n| Sports | 2 076 | 0.0329 |\n| Pets & Animals | 26 | 0.0318 |\n| News & Politics | 211 | 0.0288 |\n| People & Blogs | 4 946 | 0.0249 |\n| Science & Technology | 297 | 0.0206 |\n| Music | 10 686 | 0.0194 |\n\n\\*Grupos com menos de **30** vídeos (Unknown, Howto & Style, Pets & Animals) são pequenos e a mediana pode ser instável; interpretá‑los com cautela.\n\n### O que os números sugerem\n- As categorias **Unknown**, **Howto & Style** e **Autos & Vehicles** apresentam as maiores taxas medianas de likes por view, indicando um engajamento relativo mais forte (mais likes para cada visualização).\n- As categorias de grande volume, como **Gaming**, **Music**, **Entertainment** e **People & Blogs**, têm taxas mais baixas, mas ainda acima de 0,01 like por view, refletindo que, apesar da menor proporção, atingem muitas visualizações.\n- **Music** tem a menor taxa (≈ 0,019 like/view) entre as categorias com muitos vídeos, sugerindo que o público pode consumir o conteúdo mais passivamente (ou que likes são menos frequentes).\n\n### Avisos / limites\n- Likes podem estar ocultos (coluna *likes* NULL) e foram excluídos da análise, o que pode distorcer a taxa para categorias onde isso ocorre com mais frequência.\n- A métrica “likes ÷ views” não captura outras formas de engajamento (comentários, shares) e pode ser influenciada por bots ou visualizações não orgânicas.\n- Como a amostra inclui **apenas** vídeos que entraram em alta, os resultados não se estendem a todo o YouTube nem a vídeos que nunca trendaram.  \n\n**Próximo passo sugerido**: comparar a taxa de comentários por view ou analisar a relação entre *hours_to_trend* e engajamento, para ver se vídeos que viralizam mais rápido também geram mais likes relativos.",
+  "status": "ok",
+  "steps": [
+    {
+      "kind": "llm",
+      "name": "groq:openai/gpt-oss-120b",
+      "input": {},
+      "output_preview": "finish_reason=tool_calls · 1 ferramenta(s)",
+      "ok": true,
+      "elapsed_ms": 6855.3,
+      "extra": {
+        "finish_reason": "tool_calls",
+        "input_tokens": 3073,
+        "output_tokens": 349
+      }
+    },
+    {
+      "kind": "tool",
+      "name": "run_sql",
+      "input": {
+        "purpose": "Calcular taxa mediana de likes por view por categoria para vídeos em alta no Brasil, excluindo vídeos sem likes ou views zero.",
+        "sql": "WITH br AS (\n    SELECT v.video_id, v.category, v.likes, v.views\n    FROM videos v\n    JOIN video_country vc USING (video_id)\n    WHERE vc.country = 'Brazil'\n      AND v.likes IS NOT NULL\n      AND v.views > 0\n)\nSELECT\n    category,\n    COUNT(*) AS n_videos,\n    MEDIAN(CAST(likes AS DOUBLE) / views) AS median_like_view\nFROM br\nGROUP BY category\nORDER BY median_like_view DESC;"
+      },
+      "output_preview": "result_id: r1\nlinhas: 15\ncolunas: category, n_videos, median_like_view\ntempo: 40 ms\nSQL validado:\nWITH br AS (SELECT v.video_id, v.category, v.likes, v.views FROM videos AS v JOIN video_country AS vc USING (video_id) WHERE vc.country = 'Brazil' AND NOT v.likes IS NULL AND v.views > 0) SELECT category, COUNT(*) AS n_videos, MEDIAN(CAST(likes AS DOUBLE) / views) AS median_like_view FROM br GROUP BY …",
+      "ok": true,
+      "elapsed_ms": 47.8,
+      "extra": {
+        "purpose": "Calcular taxa mediana de likes por view por categoria para vídeos em alta no Brasil, excluindo vídeos sem likes ou views zero.",
+        "result_id": "r1",
+        "sql_validated": "WITH br AS (SELECT v.video_id, v.category, v.likes, v.views FROM videos AS v JOIN video_country AS vc USING (video_id) WHERE vc.country = 'Brazil' AND NOT v.likes IS NULL AND v.views > 0) SELECT category, COUNT(*) AS n_videos, MEDIAN(CAST(likes AS DOUBLE) / views) AS median_like_view FROM br GROUP BY category ORDER BY median_like_view DESC LIMIT 200",
+        "row_count": 15,
+        "truncated": false,
+        "elapsed_ms": 39.8,
+        "columns": [
+          "category",
+          "n_videos",
+          "median_like_view"
+        ],
+        "result_text": "result_id: r1\nlinhas: 15\ncolunas: category, n_videos, median_like_view\ntempo: 40 ms\nSQL validado:\nWITH br AS (SELECT v.video_id, v.category, v.likes, v.views FROM videos AS v JOIN video_country AS vc USING (video_id) WHERE vc.country = 'Brazil' AND NOT v.likes IS NULL AND v.views > 0) SELECT category, COUNT(*) AS n_videos, MEDIAN(CAST(likes AS DOUBLE) / views) AS median_like_view FROM br GROUP BY category ORDER BY median_like_view DESC LIMIT 200\n| category | n_videos | median_like_view |\n|---|---|---|\n| Unknown | 10 | 0.1082 |\n| Howto & Style | 23 | 0.08431 |\n| Autos & Vehicles | 69 | 0.07513 |\n| Comedy | 163 | 0.07369 |\n| Entertainment | 4857 | 0.07118 |\n| Travel & Events | 37 | 0.07044 |\n| Film & Animation | 756 | 0.04686 |\n| Education | 103 | 0.04421 |\n| Gaming | 30006 | 0.04248 |\n| Sports | 2076 | 0.03286 |\n| Pets & Animals | 26 | 0.0318 |\n| News & Politics | 211 | 0.02875 |\n| People & Blogs | 4946 | 0.02486 |\n| Science & Technology | 297 | 0.02057 |\n| Music | 10686 | 0.01938 |"
+      }
+    },
+    {
+      "kind": "llm",
+      "name": "groq:openai/gpt-oss-120b",
+      "input": {},
+      "output_preview": "finish_reason=stop · 0 ferramenta(s)",
+      "ok": true,
+      "elapsed_ms": 17495.3,
+      "extra": {
+        "finish_reason": "stop",
+        "input_tokens": 3610,
+        "output_tokens": 850
+      }
+    },
+    {
+      "kind": "guard",
+      "name": "grounding",
+      "input": {},
+      "output_preview": "31 números checados; 0 não verificados",
+      "ok": true,
+      "elapsed_ms": 0.0,
+      "extra": {
+        "unverified_numbers": [],
+        "checked": 31,
+        "verified": 31,
+        "ignored": 2
+      }
+    }
+  ],
+  "charts": [],
+  "usage": {
+    "input_tokens": 6683,
+    "output_tokens": 1199,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0,
+    "llm_calls": 2
+  },
+  "cost_usd": 0.0,
+  "latency_s": 24.608,
+  "model": "groq:openai/gpt-oss-120b",
+  "error": null
+}
